@@ -246,8 +246,6 @@ sub add_photo {
     return $new_photo;
 }
 
-=cut
-
 ## This code implement the multiprt upload described at:
 #  http://code.google.com/apis/picasaweb/gdata.html#Add_Photo
 #sub multipart_upload_photo {

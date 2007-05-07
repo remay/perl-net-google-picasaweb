@@ -2,7 +2,9 @@ README
 LICENCE
 Changes
 
-boiler plate at to of each file
+boiler plate at top of each file
+- includes $Id$ moniker
+- set svn:keywords = "Id" for each file
 
 update samples
 
