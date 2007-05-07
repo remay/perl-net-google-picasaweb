@@ -3,11 +3,20 @@ use strict;
 use warnings;
 
 ######################################################################
-# Start the server
+# On some operating systems (Windows notably) you can't use
+# Devel::Cover with fork(), as needed by many of the tests to provide
+# mock server.  This script starts the server as a stand alone script,
+# and prints the server's URL to the console.
+#
+# If you then set the environment variable TEST_SERVER_URL
+# in the environment of the tests being run:
+# TEST_SERVER_URL=http://host:port/ make test
+# (or something similar)
+# then the tests will use this server, rather than trying to spawn
+# their own.
 
 use FindBin;
 use lib $FindBin::Bin;
-
 require 'TestServer.pmt';
 
 print qq(Starting Server ...\n);

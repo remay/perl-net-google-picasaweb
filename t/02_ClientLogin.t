@@ -6,10 +6,11 @@ use warnings;
 # TODO
 ######################################################################
 
-use lib qw( t );
 use Test::More;
 use LWP();
 use Net::Google::PicasaWeb::ClientLogin();
+
+use lib qw( t );
 
 $|++; # Autoflush 
 
@@ -23,7 +24,6 @@ my $VERBOSE = 0;
 # ClientLogin server.
 my $real_username = '';
 my $real_password = '';
-my $server_url    = $ENV{TEST_SERVER_URL};
 
 ######################################################################
 ######################################################################
@@ -31,22 +31,12 @@ my $server_url    = $ENV{TEST_SERVER_URL};
 ######################################################################
 # Start the server
 
-my $server;
-unless ($server_url) {
-    diag qq(Starting Server ...) if $VERBOSE;
-    require 'TestServer.pmt';
-    $server = TestServer->new;
-    $server->configure('ClientLogin');
-    $server_url = $server->spawn();
-    diag qq(Server listenting at $server_url) if $VERBOSE;
-}
-
-# Is the server running?
-{
-    my $ua = LWP::UserAgent->new();
-    my $response = $ua->get($server_url);
-    die "Looks like the server isn't running" unless $response->code == 404;
-}
+diag qq(Starting Server ...) if $VERBOSE;
+require 'TestServer.pmt';
+my $server = TestServer->new;
+$server->configure('ClientLogin');
+my $server_url = $server->spawn();
+diag qq(Server listening at $server_url) if $VERBOSE;
 
 ######################################################################
 # Allow us to override the ClientLogin URL

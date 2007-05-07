@@ -17,49 +17,69 @@ sub new {
 sub spawn {
 	my ($self) = @_;
 
-    my ($read_fh, $write_fh);
-	pipe $read_fh, $write_fh;
+    my ($url);
 
-    # Autoflush the handles
-    {
-        my $ofh = select $read_fh;  $| = 1;
-                  select $write_fh; $| = 1;
-        select $ofh;
+    # If the server has been started manually, then read the
+    # URL from the environment, don't spawn the server
+    # and just return the URL
+    $url = $ENV{TEST_SERVER_URL};
+
+    unless ($url) {
+        # In 'normal' circumstances, fork a server, and return the
+        # URL that the server is listening on to the parent.
+
+        my ($read_fh, $write_fh);
+        pipe $read_fh, $write_fh;
+
+        # Autoflush the handles
+        {
+            my $ofh = select $read_fh;  $| = 1;
+                      select $write_fh; $| = 1;
+            select $ofh;
+        }
+
+        my $pid = fork();
+
+        #Error
+        die "Failed to fork" unless defined $pid;
+
+        # Parent
+        if ($pid) {
+            close $write_fh;
+
+            # wait until we've seen the server
+            $url = <$read_fh>;
+            $url =~ s/\s*$//; # strip newline
+        
+            close $read_fh;
+        }
+
+        # Child
+        else {
+            close $read_fh; 
+
+            TestServer::Child::server_loop($self->{config}, $write_fh);
+
+            close $write_fh;
+
+            exit(0);
+        }
+
+        # Don't set these until after the fork, so that when the cloned
+        # object gets destroyed in the child we don't try to do any
+        # tidy-up
+        $self->{pid} = $pid;
     }
 
-    my $url;
-	my $pid = fork();
-
-	#Error
-	die "Failed to fork" unless defined $pid;
-
-	# Parent
-	if ($pid) {
-		close $write_fh;
-
-		# wait until we've seen the server
-		$url = <$read_fh>;
-        $url =~ s/\s*$//; # strip newline
-        
-        close $read_fh;
-	}
-
-	# Child
-	else {
-		close $read_fh; 
-
-        TestServer::Child::server_loop($self->{config}, $write_fh);
-
-		close $write_fh;
-
-		exit(0);
-	}
-
-    # Don't set these until after the fork, so that when the cloned
-    # object gets destroyed in the child we don't try to do any
-    # tidy-up
 	$self->{url} = $url;
-	$self->{pid} = $pid;
+
+    # Is the server actually running?
+    {
+        my $ua = LWP::UserAgent->new();
+        my $response = $ua->get($url);
+        die "Failed talking to $url.\n" .
+            "Looks like the server isn't running" unless $response->code == 404;
+    }
 
 	return $url;
 }
