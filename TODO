@@ -6,7 +6,10 @@ boiler plate at top of each file
 - includes $Id$ moniker
 - set svn:keywords = "Id" for each file
 
-update samples
+versions for each module other than Picasaweb.pm from $Release$ moniker
+
+add examples
 
 complete test coverage
-- include pod and pod coverage
+
+gphoto_timestamp_to_date should be configurable for format (and use locale?)
