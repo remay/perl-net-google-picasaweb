@@ -1,0 +1,190 @@
+use strict;
+use warnings;
+
+package TestServer;
+
+sub new {
+	my ($class) = @_;
+
+	my $self = bless {}, $class;
+
+	$self->{config} = [];
+	push @{$self->{config}}, TestServer::Config->new;
+
+	return $self;
+}
+
+sub spawn {
+	my ($self) = @_;
+
+    my ($read_fh, $write_fh);
+	pipe $read_fh, $write_fh;
+
+    # Autoflush the handles
+    {
+        my $ofh = select $read_fh;  $| = 1;
+                  select $write_fh; $| = 1;
+        select $ofh;
+    }
+
+    my $url;
+	my $pid = fork();
+
+	#Error
+	die "Failed to fork" unless defined $pid;
+
+	# Parent
+	if ($pid) {
+		close $write_fh;
+
+		# wait until we've seen the server
+		$url = <$read_fh>;
+        $url =~ s/\s*$//; # strip newline
+        
+        close $read_fh;
+	}
+
+	# Child
+	else {
+		close $read_fh; 
+
+        TestServer::Child::server_loop($self->{config}, $write_fh);
+
+		close $write_fh;
+
+		exit(0);
+	}
+
+    # Don't set these until after the fork, so that when the cloned
+    # object gets destroyed in the child we don't try to do any
+    # tidy-up
+	$self->{url} = $url;
+	$self->{pid} = $pid;
+
+	return $url;
+}
+
+sub configure {
+	my ($self, $configname) = @_;
+	my $filename = "$configname.config";
+
+	eval { require $filename; };
+	die "Failed to load TestServer configuration file '$filename':\n$@" if $@;
+
+	my $configpkg = "TestServer::Config::$configname";
+	my $config = $configpkg->new;
+	die "Failed to instansiate config object '$configpkg'" unless $config;
+
+	my $base = $config->get_base;
+
+	# See if it's already in use
+	for my $c (@{$self->{config}}) {
+		my $b = $c->get_base;
+		if ( $base =~ m/$b/ ) {  # TODO: this is not sufficient
+			die "Base URL '$base' already in use as '$b'";
+		}
+	}
+	push @{$self->{config}}, $config;
+
+	return;
+}
+
+sub close {
+	my ($self, $ua) = @_;
+
+	if($self->{pid}) {
+        require LWP;
+        $ua = LWP::UserAgent->new() unless $ua;
+        $ua->timeout(15);
+        $ua->get($self->{url} . 'done');
+		delete $self->{url};
+
+        $self->wait();
+	}
+
+	return
+}
+
+sub wait {
+    my ($self) = @_;
+
+	if ($self->{pid}) {
+		waitpid($self->{pid}, 0);
+        delete $self->{pid};
+		delete $self->{url};
+	}
+
+    return;
+}
+
+DESTROY { $_[0]->close(); }
+
+package TestServer::Config;
+
+sub new { bless \do {my $x}, $_[0]; }
+
+sub get_base { '/done' }
+
+sub get_response {
+	my ($self, $path) = @_;
+
+	if ( $path =~ m|^/done| ) {
+		return HTTP::Response->new(
+		   	299, 'OK', [], "Server Shutting Down"
+		);
+	}
+
+	return;
+}
+
+package TestServer::Child;
+
+use HTTP::Daemon();
+use HTTP::Response();
+
+sub server_loop {
+	my ($config_ref, $parent_fh) = @_;
+
+	my $d = HTTP::Daemon->new or die "Failed to initalise Server";
+	print $parent_fh $d->url . "\n";  # newline essential, due to read using <>.
+                                      # We'd need some signal of end anyway ...
+
+	my $done = 0;
+	while (not $done and my $c = $d->accept) {
+		while (not $done and my $request = $c->get_request) {
+			my $response = handle_request($request, $config_ref);
+			$c->send_response($response);
+
+			$done = 1 if $response->code == 299;
+		}
+    }
+
+	return 0;
+}
+
+sub handle_request {
+	my ($request, $config_ref) = @_;
+	my $response;
+
+
+	my $path = $request->uri;
+
+	# Try to match a config
+	for my $c (@$config_ref) {
+		my $b = $c->get_base;
+		if ( $path =~ m/^$b/ ) {
+			$response = $c->get_response($path, $request);
+		}
+
+	}
+
+	unless ($response) {
+		$response = HTTP::Response->new(
+		   	404, 'Not Found', [], "Not Found: '$path'"
+		);
+	}
+
+	return $response;
+}
+
+1; # End of TestServer.pm
