@@ -79,3 +79,110 @@ sub gphoto_timestamp_to_date {
 }
 
 1; # End of Utils.pm
+__END__
+
+=head1 NAME
+
+Net::Google::PicasaWeb::Utils - Utility functions for working with picasweb
+
+=head1 SYNOPSIS
+
+  use Net::Google::PicasaWeb::Utils qw(
+    format_bytes guess_block_size gphoto_timestamp_to_date
+  );
+
+=head1 DESCRIPTION
+
+Net::Google::PicasaWeb::Utils is a (small) set of functions to assist
+when working with Net::Google::PicasaWeb objects.
+
+=head1 PUBLIC API
+
+This section describes the public API.
+
+By default this module exports nothing.  Any of the functions
+described in this section can be exported by adding their name to the
+import list on the 'use' line.
+
+=head2 format_bytes
+
+    my $string = format_bytes($bytes);
+
+format_bytes() takes a number representing the size of something in
+bytes, and formats the number as a human readable string.
+
+    print format_bytes(1023);        # prints '1023 bytes'
+    print format_bytes(1024);        # prints '1.000 KB'
+    print format_bytes(1024*2000);   # prints '1.953 MB'
+
+=head2 guess_block_size
+
+  my $blocksize = guess_block_size($bytes, $speed);
+
+guess_block_size() takes the number of bytes to be transfered and
+the speed of a connection over which the bytes are to be transfered
+(in bits per second), and suggests a transfer block size (in bytes)
+to use, taking into account:
+
+=over
+
+=item *
+
+No block should take more than one second to transfer.
+
+=item *
+
+The should be at least 100 blocks.
+
+=back
+
+These characteristics are designed to ensure that when transfering
+large files (e.g. binary photo data) the reporting callbacks are
+called regularly.  The suggested blocksize will never be less than
+1024 bytes, regardless.
+
+=head2 gphoto_timestamp_to_date
+
+    my $date = gphoto_timestamp_to_date($timestamp);
+
+gphoto_timestamp_to_date() takes a timestamp (as defined in the
+Google Picasaweb Data API, gphoto namespace) and formats it
+as a date.
+
+The timestamp is the number of milli-seconds since January 1st,
+1970.  See
+L<http://code.google.com/apis/picasaweb/reference.html#gphoto_timestamp>
+.
+
+=head1 BUGS
+
+gphoto_timestamp_to_date() currently formats the date it returns as a
+European date.  I.e. December 2nd, 1980 appears as '2/12/1980'.  It
+should be possible to set the format.
+
+=head1 SEE ALSO
+
+=over
+
+=item L<http://code.google.com/apis/picasaweb/overview.html>
+
+The Google Picasaweb Data API reference.
+
+=item L<http://code.google.com/p/net-google-picasaweb/>
+
+This module's homepage.
+
+=back
+
+=head1 AUTHOR
+
+Robert May, E<lt>robertmay@cpan.orgE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2007 by Robert May
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
