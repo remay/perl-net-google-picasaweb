@@ -1,16 +1,10 @@
 Net-Google-PicasaWeb version 0.01
 =================================
 
-The README is used to introduce the module and provide instructions on
-how to install the module, any machine dependencies it may have (for
-example C compilers and installed libraries) and any other information
-that should be provided before the module is installed.
-
-A README file is required for CPAN modules since CPAN extracts the
-README file from a module distribution so that people browsing the
-archive can use it get an idea of the modules uses. It is usually a
-good idea to provide version information here so that people can
-decide whether fixes for the module are worth downloading.
+Net::Google::PicasaWeb is a set of perl modules providing an Object
+Orientated binding to the Google Picasaweb APIs, allowing you to
+retrieve information about albums and photos in a picasaweb account,
+and to manage (create, delete and upload) albums and photos.
 
 INSTALLATION
 
@@ -25,11 +19,20 @@ DEPENDENCIES
 
 This module requires these other modules and libraries:
 
-  blah blah blah
+    LWP               (and it's dependencies)
+    Crypt::SSLeay     (for https support)
+    Scalar::Util      (core since perl 5.8)
+    XML::Atom         (and it's dependencies)
+
+Additional modules required for testing (the test suite will skip any
+tests that require these modules, and so they do not need to be
+installed to use this module):
+
+    Test::More
+    Test::Pod           (v1.14 or higher)
+    Test::Pos::Coverage (v1.04 or higher)
 
 COPYRIGHT AND LICENCE
-
-Put the correct copyright and licence information here.
 
 Copyright (C) 2007 by Robert May
 

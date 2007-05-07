@@ -2,6 +2,8 @@
 use strict;
 use warnings;
 
+BEGIN { $|++; } # AutoFlush
+
 use Test::More;
 
 use Net::Google::PicasaWeb::Utils

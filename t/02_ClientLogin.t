@@ -2,17 +2,13 @@
 use strict;
 use warnings;
 
-######################################################################
-# TODO
-######################################################################
+BEGIN { $|++; } # AutoFlush
 
 use Test::More;
 use LWP();
 use Net::Google::PicasaWeb::ClientLogin();
 
 use lib qw( t );
-
-$|++; # Autoflush 
 
 ######################################################################
 # User configuration

@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-BEGIN { $| = 1 } # Autoflush
+BEGIN { $|++; } # AutoFlush
 
 use Test::More;
 
