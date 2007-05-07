@@ -1,0 +1,18 @@
+lib/Net/Google/PicasaWeb.pm
+lib/Net/Google/PicasaWeb/Album.pm
+lib/Net/Google/PicasaWeb/Base.pm
+lib/Net/Google/PicasaWeb/ClientLogin.pm
+lib/Net/Google/PicasaWeb/Namespaces.pm
+lib/Net/Google/PicasaWeb/Photo.pm
+lib/Net/Google/PicasaWeb/User.pm
+lib/Net/Google/PicasaWeb/Utils.pm
+Makefile.PL
+MANIFEST			This list of files
+t/01_ClientLogin_load.t
+t/02_ClientLogin.t
+t/03_Utils_load.t
+t/04_Utils.t
+t/ClientLogin.config
+t/run_server.pl
+t/TestServer.pmt
+TODO
