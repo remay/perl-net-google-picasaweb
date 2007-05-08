@@ -3,6 +3,7 @@ lib/Net/Google/PicasaWeb.pm
 lib/Net/Google/PicasaWeb/Album.pm
 lib/Net/Google/PicasaWeb/Base.pm
 lib/Net/Google/PicasaWeb/ClientLogin.pm
+lib/Net/Google/PicasaWeb/Comment.pm
 lib/Net/Google/PicasaWeb/Namespaces.pm
 lib/Net/Google/PicasaWeb/Photo.pm
 lib/Net/Google/PicasaWeb/User.pm
