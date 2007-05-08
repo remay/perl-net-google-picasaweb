@@ -28,18 +28,17 @@ use XML::Atom::Util qw( childlist );
 $XML::Atom::DefaultVersion = '1.0';
 
 my %namespaces = (
-	gphoto     => XML::Atom::Namespace->new('gphoto'    ,'http://schemas.google.com/photos/2007'      ),
-	media      => XML::Atom::Namespace->new('media'     ,'http://search.yahoo.com/mrss/'              ),
-	exif       => XML::Atom::Namespace->new('exif'      ,'http://schemas.google.com/photos/exif/2007' ),
-    #openSearch => XML::Atom::Namespace->new('openSearch','http://a9.com/-/spec/opensearchrss/1.0/'    ),
-    #geo        => XML::Atom::Namespace->new('geo'       ,'http://www.w3.org/2003/01/geo/wgs84_pos#'   ),
-    #photo      => XML::Atom::Namespace->new('photo'     ,'http://www.pheed.com/pheed/'                ),
-    #georss     => XML::Atom::Namespace->new('georss'    ,'http://www.georss.org/georss'               ),
-    #batch      => XML::Atom::Namespace->new('batch'     ,'http://schemas.google.com/gdata/batch'      ),
-    #gml        => XML::Atom::Namespace->new('gml'       ,'http://www.opengis.net/gml'                 ),
+	gphoto     => XML::Atom::Namespace->new('gphoto',
+                    'http://schemas.google.com/photos/2007'),
+	media      => XML::Atom::Namespace->new('media',
+                    'http://search.yahoo.com/mrss/'),
+	exif       => XML::Atom::Namespace->new('exif',
+                    'http://schemas.google.com/photos/exif/2007' ),
 );
 
-my %namespace_lookup = map { $namespaces{$_}->{uri} => $namespaces{$_} } keys %namespaces;
+my %namespace_lookup = map
+                       { $namespaces{$_}->{uri} => $namespaces{$_} }
+                       keys %namespaces;
 
 sub mk_object_accessor {
     my $class = shift;
@@ -150,7 +149,11 @@ sub init {
 	$obj->SUPER::init(@_);
 
 	for (keys %namespaces) {
-		$obj->elem->setNamespace($namespaces{$_}->{uri}, $namespaces{$_}->{prefix}, 0);
+		$obj->elem->setNamespace(
+            $namespaces{$_}->{uri},
+            $namespaces{$_}->{prefix},
+            0
+        );
 	}
 
 	$obj;
@@ -162,11 +165,12 @@ our @ISA = qw( Net::Google::PicasaWeb::Namespaces );
 
 use XML::Atom::Util qw(childlist);
 
-__PACKAGE__->mk_elem_accessors(qw( albumid commentCount commentingEnabled id maxPhotosPerAlbum
-                                   nickname quotacurrent quotalimit thumbnail user access
-							       bytesUsed location name numphotos numphotosremaining
-							       checksum client height position rotation size timestamp
-							       version width photoid weight ));
+__PACKAGE__->mk_elem_accessors(qw(
+    albumid commentCount commentingEnabled id maxPhotosPerAlbum
+    nickname quotacurrent quotalimit thumbnail user access bytesUsed
+    location name numphotos numphotosremaining checksum client height
+    position rotation size timestamp version width photoid weight
+));
 
 for my $class (qw( XML::Atom::Feed XML::Atom::Entry )) {
     __PACKAGE__->mk_object_accessor( $class, gphoto => __PACKAGE__ );
@@ -215,10 +219,16 @@ package XML::Atom::MediaGroup;
 
 our @ISA = qw( Net::Google::PicasaWeb::Namespaces );
 
-__PACKAGE__->mk_elem_accessors(qw( credit description keywords title ));
+__PACKAGE__->mk_elem_accessors(qw(
+    credit description keywords title
+));
 
-__PACKAGE__->mk_object_list_accessor('content' => 'XML::Atom::MediaGroup::Content', 'contents');
-__PACKAGE__->mk_object_list_accessor('thumbnail' => 'XML::Atom::MediaGroup::Thumbnail', 'thumbnails');
+__PACKAGE__->mk_object_list_accessor(
+    'content' => 'XML::Atom::MediaGroup::Content', 'contents'
+);
+__PACKAGE__->mk_object_list_accessor(
+    'thumbnail' => 'XML::Atom::MediaGroup::Thumbnail', 'thumbnails'
+);
 
 for my $class (qw( XML::Atom::Feed XML::Atom::Entry )) {
     __PACKAGE__->mk_object_accessor( $class, group => __PACKAGE__ );
@@ -231,7 +241,9 @@ package XML::Atom::MediaGroup::Content;
 
 our @ISA = qw( Net::Google::PicasaWeb::Namespaces );
 
-__PACKAGE__->mk_attr_accessors(qw( url type medium height width filesize ));
+__PACKAGE__->mk_attr_accessors(qw(
+    url type medium height width filesize
+));
 
 sub element_name { 'content' }
 sub element_ns   { $namespaces{media}->{uri} }
@@ -249,7 +261,9 @@ package XML::Atom::Exiftags;
 
 our @ISA = qw( Net::Google::PicasaWeb::Namespaces );
 
-__PACKAGE__->mk_elem_accessors(qw( fstop make model distance exposure flash focallength iso time ));
+__PACKAGE__->mk_elem_accessors(qw(
+    fstop make model distance exposure flash focallength iso time
+));
 
 for my $class (qw( XML::Atom::Feed XML::Atom::Entry )) {
     __PACKAGE__->mk_object_accessor( $class, tags => __PACKAGE__ );
@@ -261,3 +275,281 @@ sub element_ns   { $namespaces{exif}->{uri} }
 1; # End of Namespaces.pm
 
 __END__
+
+=head1 NAME
+
+Net::Google::PicasaWeb::Namespaces - Namespace extensions to XML::Atom
+
+=head1 SYNOPSIS
+
+  use Net::Google::PicasaWeb::Namespaces;
+
+  my $entry = XML::Atom::Picas::Entry->new();
+
+=head1 DESCRIPTION
+
+Net::Google::PicasaWeb::Namespaces provides extensions to the
+XML::Atom package for creating and parsing the additional
+namespace elements that the Google Picasa Web Data API
+provides.
+
+This module is used internally by Net::Google::PicasaWeb, and it
+is not expected that an end-user of the module will ever need to
+use this module directly.  This documentation is for developers.
+
+=head1 EXPORTS
+
+This module exports nothing.
+
+=head1 Classes
+
+This module provides the following classes:
+
+=head2 Net::Google::PicasWeb::Namespaces
+
+Sub-class of XML::Atom::Base, and base class for other classes
+provided here.
+
+Provides namespace definitions for the gphoto, media and exif
+namespaces, and overrides the following XML::Atom::Base methods
+to add the namespace support in a way that results in neat
+XML generation:
+
+=over
+
+=item mk_object_accessor
+
+Modified from the XML::Atom::Base implementation to provide
+an XML::Atom::Namespace object to the set() method, rather than
+a simple URI.  This allows XML::XMLLib to generate XML with the
+namespace definition (xmlns attribute) on the root element of the
+generated XML.
+
+=item mk_elem_accessors
+
+Modified from the XML::Atom::Base implementation to provide
+an XML::Atom::Namespace object to the set() method, rather than
+a simple URI.  This allows XML::XMLLib to generate XML with the
+namespace definition (xmlns attribute) on the root element of the
+generated XML.
+
+=item mk_object_list_accessor
+
+Modified from the XML::Atom::Base implementation to provide
+class over-ridable namespaces.  Further modified to create the
+accessor in a named package, as the original implementation required
+calling this as a method of the class into which the accesors should
+be created, and it's not possible to sub-class that without subclassing
+virtually everything in XML::Atom.  And I didn't want to do that ...
+
+=back
+
+=head2 XML::Atom::PicasaEntry
+
+Subclass of XML::Atom::Entry, which adds the namespace definitions to
+the root element of the Entry being generated.  Allows for neater XML
+generation.  Otherwise an object of this class behaves exactly like
+an XML::Atom::Entry object.
+
+=head2 XML::Atom::Gphoto
+
+  my $timestamp = $entry->gphoto->timestamp; # getter
+
+  my $gphoto = XML::Atom::Gphoto->new();
+  $gphoto->timestamp($timestamp);
+  $entry->gphoto($gphoto);
+
+Subclass of Net::Google::PicasaWeb::Namespace to provide accessors
+for the gphoto namespace.  To avoid accessor name clashes the gphoto
+elements are treated as is they were encapsulated within a
+C<< <gphoto> >> element, even thought they actually appear as direct
+children of the root element in the XML.  Hence the syntax above.
+
+The following gphoto elements are covered, having accessors with the
+same names:
+
+albumid, commentCount, commentingEnabled, id, maxPhotosPerAlbum,
+nickname, quotacurrent, quotalimit, thumbnail, user, access,
+bytesUsed, location, name, numphotos, numphotosremaining, checksum,
+client, height, position, rotation, size, timestamp, version, width,
+photoid, weight.
+
+Overrides the following methods to enable this behaviour:
+
+=over
+
+=item mk_object_accessor
+
+Modified from the base class implementation to treat the elements
+as if they are part of a sub-group, when they are not.
+
+=item element_name
+
+Returns 'gphoto'.
+
+=item element_ns
+
+Returns the gphoto namespace URI.
+
+=back
+
+=head2 XML::Atom::MediaGroup
+
+  my $credit = $entry->group->credit; # getter
+
+  my $media_group = XML::Atom::MediaGroup->new();
+  $media_group->credit($credit);
+  $entry->group($media_group);
+
+Subclass of Net::Google::PicasaWeb::Namespace to provide accessors
+for the media namespace.  These elements appears within their own
+C<< <group> >> element.
+
+Provides simple accessors for the following elements: credit,
+description, keywords, title.
+
+See below for the contents and thumbnail accessors.
+
+Overrides the following methods:
+
+=over
+
+=item element_name
+
+Returns 'group'.
+
+=item element_ns
+
+Returns the media namespace URI.
+
+=back
+
+=head2 XML::Atom::MediaGroup::Content
+
+  my @contents = $entry->group->content();
+  my $content_url = $contents[0]->url;
+
+  my $content = XML::Atom::MediaGroup::Content->new();
+  $content->url($content_url);
+  $content->type('image/jpeg');
+  ...
+  $media_group->add_content($content);
+  ...
+
+Subclass of Net::Google::PicasaWeb::Namespace to provide accessors
+for the attributes of a media::content element.  The accessors and
+setters work just link those of an XML::Atom::Link object, as there
+can me more than one content element per media group.
+
+Provides simple accessors for the following attributes: url,
+type, medium, height, width, filesize.
+
+Overrides the following methods:
+
+=over
+
+=item element_name
+
+Returns 'content'.
+
+=item element_ns
+
+Returns the media namespace URI.
+
+=back
+
+=head2 XML::Atom::MediaGroup::Thumbnail
+
+  my @thumbs = $entry->group->thumbnail();
+  my $thumb_height = $thumbs[0]->height;
+
+  my $thumb = XML::Atom::MediaGroup::Thumbnail->new();
+  $thumb->url($thumb_url);
+  $thumb->height(150);
+  ...
+  $media_group->add_thumb($thumb);
+  ...
+
+Subclass of Net::Google::PicasaWeb::Namespace to provide accessors
+for the attributes of a media thumbnail element.  The accessors and
+setters work just link those of an XML::Atom::Link object, as there
+can me more than one thumbnail element per media group.
+
+Provides simple accessors for the following attributes: url,
+height, width.
+
+Overrides the following methods:
+
+=over
+
+=item element_name
+
+Returns 'thumbnail'.
+
+=item element_ns
+
+Returns the media namespace URI.
+
+=back
+
+=head2 XML::Atom::Exiftags
+
+  my $exposure = $entry->tags->exposure; # getter
+
+  my $exif_tags = XML::Atom::Exiftags->new();
+  $exif_tags->exposure($exposure);
+  ...
+  $entry->tags($exif_tags);
+
+Subclass of Net::Google::PicasaWeb::Namespace to provide accessors
+for the exif namespace.  These elements appears within their own
+C<< <exif:tags> >> element.
+
+Provides simple accessors for the following elements: fstop,
+make, model, distance, exposure, flash, focallength, iso, time.
+
+Overrides the following methods:
+
+=over
+
+=item element_name
+
+Returns 'tags'.
+
+=item element_ns
+
+Returns the exif namespace URI.
+
+=back
+
+=head1 BUGS
+
+It's a bit messy, but at least it encapsulate the mess here, rather
+than all over the source.
+
+=head1 SEE ALSO
+
+=over
+
+=item L<http://code.google.com/apis/picasaweb/overview.html>
+
+The Google Picasaweb Data API reference.
+
+=item L<http://code.google.com/p/net-google-picasaweb/>
+
+This module's homepage.
+
+=back
+
+=head1 AUTHOR
+
+Robert May, E<lt>robertmay@cpan.orgE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2007 by Robert May
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut

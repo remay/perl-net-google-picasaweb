@@ -13,6 +13,8 @@ use warnings;
 ######################################################################
 # $Id$
 ######################################################################
+# Utility functions for Net::Google::PicasaWeb
+######################################################################
 
 package Net::Google::PicasaWeb::Utils;
 
@@ -108,6 +110,11 @@ Net::Google::PicasaWeb::Utils - Utility functions for working with picasweb
 Net::Google::PicasaWeb::Utils is a (small) set of functions to assist
 when working with Net::Google::PicasaWeb objects.
 
+=head1 EXPORTS
+
+This module exports nothing by default.  Any of the functions
+documented in the public API may be exported by request.
+
 =head1 PUBLIC API
 
 This section describes the public API.
@@ -144,7 +151,7 @@ No block should take more than one second to transfer.
 
 =item *
 
-The should be at least 100 blocks.
+There should be at least 100 blocks.
 
 =back
 

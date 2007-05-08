@@ -25,7 +25,7 @@ __END__
 
 =head1 NAME
 
-Net::Google::PicasaWeb - A Perl OO binding to the Google Picasaweb Data API
+Net::Google::PicasaWeb - A Perl OO binding to the Google Picasa Web Data API
 
 =head1 SYNOPSIS
 
@@ -46,9 +46,7 @@ Orientated binding to the Google PicasaWeb APIs, allowing you to
 retrieve information about albums and photos in a PicasaWeb account,
 and to manage (create, delete and upload) albums and photos.
 
-=head1 PUBLIC API
-
-This section describes the public API.
+=head1 MAIN MODULES
 
 =head2 Net::Google::PicasaWeb::User
 
@@ -91,6 +89,17 @@ for further information.
 See L<Net::Google::PicasaWeb::Photo|Net::Google::PicasaWeb::Photo>
 for further information.
 
+=head2 Net::Google::PicasaWeb::Comment
+
+=over
+
+=item
+
+=back
+
+See L<Net::Google::PicasaWeb::Comment|Net::Google::PicasaWeb::Comment>
+for further information.
+
 =head2 Net::Google::PicasaWeb::Utils
 
 Provides a small number of useful functions for working with this
@@ -123,6 +132,10 @@ picasaweb service.
 
 See L<Net::Google::PicasaWeb::Namespaces|Net::Google::PicasaWeb::Namespaces>
 for further information.
+
+=head1 DEPENDANCIES
+
+XXX
 
 =head1 SEE ALSO
 
