@@ -15,7 +15,7 @@ use warnings;
 
 package Net::Google::PicasaWeb::Album;
 
-our $VERSION = (q$Revision$) =~ /(\d+)/g;
+our ($VERSION) = q$Revision$ =~ /(\d+)/;
 eval $VERSION;
 
 use Net::Google::PicasaWeb::Base();

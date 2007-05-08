@@ -1,13 +1,24 @@
 use strict;
 use warnings;
 
-# Implements the Google ClientLogin API detailed at:
+######################################################################
+# net-google-picasaweb project. Implementing the API detailed at:
+# http://code.google.com/apis/picasaweb/reference.html
+#
+# Copyright (C) 2007 by Robert May
+#
+# This library is free software; you can redistribute it and/or modify
+# it under the same terms as Perl itself.
+######################################################################
+# $Id$
+######################################################################
+# This module implements the Google ClientLogin API detailed at:
 # http://code.google.com/apis/accounts/AuthForInstalledApps.html
-# (c) 2007 Robert May.  robertmay@cpan.org
+######################################################################
 
 package Net::Google::PicasaWeb::ClientLogin;
 
-our $VERSION = "0.00_01";
+our ($VERSION) = q$Revision$ =~ /(\d+)/;
 eval $VERSION;
 
 use Carp           qw(carp croak);

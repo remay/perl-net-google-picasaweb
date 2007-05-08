@@ -1,15 +1,15 @@
-README
-LICENCE
-Changes
+LICENCE - add
+Changes - update
 
 boiler plate at top of each file
-- includes $Id$ moniker
-- set svn:keywords = "Id" for each file
-
-versions for each module other than Picasaweb.pm from $Release$ moniker
+- extend to include description of file
 
 add examples
 
 complete test coverage
 
-gphoto_timestamp_to_date should be configurable for format (and use locale?)
+gphoto_timestamp_to_date should be configurable for format
+ (and use locale?)
+
+----------------------------------------------------------------------
+$Id$
