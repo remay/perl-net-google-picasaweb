@@ -11,5 +11,15 @@ complete test coverage
 gphoto_timestamp_to_date should be configurable for format
  (and use locale?)
 
+Base: make attributes per instance; allows User to have username and
+      cli attributes.
+
+Photo: keywords() should return string in scalar context, list of keywords
+       in list context
+
+Check everywhere for use of ref when blessed should be used
+
+Investigate how confusing it would be to replace _set_photo/albu/user with _set_parent.
+
 ----------------------------------------------------------------------
 $Id$

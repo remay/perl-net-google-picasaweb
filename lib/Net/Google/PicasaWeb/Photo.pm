@@ -115,4 +115,12 @@ sub delete {
     croak q(Not yet implemented);
 }
 
-1; # End of PicasaWeb.pm
+sub get_comments {
+    croak q(Not yet implemented);
+}
+
+sub add_comment {
+    croak q(Not yet implemented);
+}
+
+1; # End of Photo.pm

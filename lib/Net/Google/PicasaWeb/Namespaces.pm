@@ -139,7 +139,7 @@ sub mk_object_list_accessor {
 }
 
 ######################################################################
-# Specialised XML::Atom::Etry constructor to get NS right
+# Specialised XML::Atom::Entry constructor to get NS right
 ######################################################################
 package XML::Atom::PicasaEntry;
 
@@ -258,6 +258,6 @@ for my $class (qw( XML::Atom::Feed XML::Atom::Entry )) {
 sub element_name { 'tags' }
 sub element_ns   { $namespaces{exif}->{uri} }
 
-1;
+1; # End of Namespaces.pm
 
 __END__

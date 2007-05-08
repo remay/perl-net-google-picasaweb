@@ -217,13 +217,13 @@ sub add_album {
     my $entry = XML::Atom::PicasaEntry->new();
     $entry->title($options{title});
     $entry->summary($options{description});
-    my $gphoto = XML::Atom::Gphoto->new();
+		my $gphoto = XML::Atom::Gphoto->new();
         $gphoto->location($options{location});
         $gphoto->access($options{private} ? 'private' : 'public');
         $gphoto->commentingEnabled('true');
         $gphoto->timestamp($options{timestamp} * 1000);
     $entry->gphoto($gphoto);
-        my $category = XML::Atom::Category->new();
+		my $category = XML::Atom::Category->new();
         $category->scheme('http://schemas.google.com/g/2005#kind');
         $category->term('http://schemas.google.com/photos/2007#album');
     $entry->category($category);

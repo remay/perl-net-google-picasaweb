@@ -31,9 +31,7 @@ use XML::Atom::Feed();
 my %attributes = (
     parent     => undef,
     entry      => undef,
-    entry_time => undef,
     feed       => undef,
-    feed_time  => undef,
     ua         => undef,
     last_error => undef,
 
