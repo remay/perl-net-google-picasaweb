@@ -21,5 +21,21 @@ Check everywhere for use of ref when blessed should be used
 
 Investigate how confusing it would be to replace _set_photo/albu/user with _set_parent.
 
+Documentation still needed for:
+  ClientLogin
+  User
+  Album
+  Photo
+  Comment
+  Base
+  Namespaces
+
+  TestServer.pmt???
+
+Add DIAGOSTICS sections to POD describing error messages
+
+Security - wipe passwords before destroying objects. Not great, but better
+than nothing
+
 ----------------------------------------------------------------------
 $Id$
