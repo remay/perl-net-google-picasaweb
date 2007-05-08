@@ -15,6 +15,8 @@ use warnings;
 
 package TestServer;
 
+use LWP();
+
 sub new {
 	my ($class) = @_;
 
@@ -125,7 +127,6 @@ sub close {
 	my ($self, $ua) = @_;
 
 	if($self->{pid}) {
-        require LWP;
         $ua = LWP::UserAgent->new() unless $ua;
         $ua->timeout(15);
         $ua->get($self->{url} . 'done');
