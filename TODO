@@ -34,6 +34,8 @@ Documentation still needed for:
 
 Add DIAGOSTICS sections to POD describing error messages
 
+Add AUDIENCE section to POD indicating whether the doc is for users or developers
+
 Security - wipe passwords before destroying objects. Not great, but better
 than nothing
 
