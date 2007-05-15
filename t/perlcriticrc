@@ -1,0 +1,432 @@
+severity  = brutal
+only      = 1
+force     = 0
+verbose   = 5
+#top       = 50
+#theme     = (pbp + security) * bugs
+#include   = NamingConventions ClassHierarchies
+#exclude   = Variables  Modules::RequirePackage
+
+[Perl::Critic::Policy::BuiltinFunctions::ProhibitLvalueSubstr]
+# set_themes = core maintenance pbp
+# severity   = 3
+
+[Perl::Critic::Policy::BuiltinFunctions::ProhibitReverseSortBlock]
+# set_themes = core cosmetic pbp
+# severity   = 1
+
+[Perl::Critic::Policy::BuiltinFunctions::ProhibitSleepViaSelect]
+# set_themes = bugs core pbp
+# severity   = 5
+
+[Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyEval]
+# set_themes = bugs core pbp
+# severity   = 5
+
+[Perl::Critic::Policy::BuiltinFunctions::ProhibitStringySplit]
+# set_themes = core cosmetic pbp
+# severity   = 2
+
+[Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalCan]
+# set_themes = core maintenance
+# severity   = 3
+
+[Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalIsa]
+# set_themes = core maintenance
+# severity   = 3
+
+[Perl::Critic::Policy::BuiltinFunctions::ProhibitVoidGrep]
+# set_themes = core maintenance
+# severity   = 3
+
+[Perl::Critic::Policy::BuiltinFunctions::ProhibitVoidMap]
+# set_themes = core maintenance
+# severity   = 3
+
+[Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep]
+# set_themes = bugs core pbp
+# severity   = 4
+
+[Perl::Critic::Policy::BuiltinFunctions::RequireBlockMap]
+# set_themes = bugs core pbp
+# severity   = 4
+
+[Perl::Critic::Policy::BuiltinFunctions::RequireGlobFunction]
+# set_themes = bugs core pbp
+# severity   = 5
+
+[Perl::Critic::Policy::BuiltinFunctions::RequireSimpleSortBlock]
+# set_themes = complexity core maintenance pbp
+# severity   = 3
+
+[Perl::Critic::Policy::ClassHierarchies::ProhibitAutoloading]
+# set_themes = core maintenance pbp
+# severity   = 3
+
+[Perl::Critic::Policy::ClassHierarchies::ProhibitExplicitISA]
+# set_themes = core maintenance pbp
+# severity   = 3
+
+[Perl::Critic::Policy::ClassHierarchies::ProhibitOneArgBless]
+# set_themes = bugs core pbp
+# severity   = 5
+
+[Perl::Critic::Policy::CodeLayout::ProhibitHardTabs]
+# set_themes = core cosmetic
+# severity   = 3
+# allow_leading_tabs = 
+
+[Perl::Critic::Policy::CodeLayout::ProhibitParensWithBuiltins]
+# set_themes = core cosmetic pbp
+# severity   = 1
+
+[Perl::Critic::Policy::CodeLayout::ProhibitQuotedWordLists]
+# set_themes = core cosmetic
+# severity   = 2
+# min_elements = 
+
+[Perl::Critic::Policy::CodeLayout::ProhibitTrailingWhitespace]
+# set_themes = core maintenance
+# severity   = 1
+
+[Perl::Critic::Policy::CodeLayout::RequireConsistentNewlines]
+# set_themes = bugs core
+# severity   = 4
+
+[Perl::Critic::Policy::CodeLayout::RequireTidyCode]
+# set_themes = core cosmetic pbp
+# severity   = 1
+# perltidyrc = 
+
+[Perl::Critic::Policy::CodeLayout::RequireTrailingCommas]
+# set_themes = core cosmetic pbp
+# severity   = 1
+
+[Perl::Critic::Policy::ControlStructures::ProhibitCStyleForLoops]
+# set_themes = core maintenance pbp
+# severity   = 2
+
+[Perl::Critic::Policy::ControlStructures::ProhibitCascadingIfElse]
+# set_themes = complexity core maintenance pbp
+# severity   = 3
+# max_elsif = 
+
+[Perl::Critic::Policy::ControlStructures::ProhibitDeepNests]
+# set_themes = complexity core maintenance
+# severity   = 3
+# max_nests = 
+
+[Perl::Critic::Policy::ControlStructures::ProhibitMutatingListFunctions]
+# set_themes = bugs core pbp
+# severity   = 5
+# list_funcs = 
+# add_list_funcs = 
+
+[Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls]
+# set_themes = core cosmetic pbp
+# severity   = 2
+# allow = 
+
+[Perl::Critic::Policy::ControlStructures::ProhibitUnlessBlocks]
+# set_themes = core cosmetic pbp
+# severity   = 2
+
+[Perl::Critic::Policy::ControlStructures::ProhibitUnreachableCode]
+# set_themes = bugs core
+# severity   = 4
+
+[Perl::Critic::Policy::ControlStructures::ProhibitUntilBlocks]
+# set_themes = core cosmetic pbp
+# severity   = 2
+
+[Perl::Critic::Policy::Documentation::RequirePodAtEnd]
+# set_themes = core cosmetic pbp
+# severity   = 1
+
+[Perl::Critic::Policy::Documentation::RequirePodSections]
+# set_themes = core maintenance pbp
+# severity   = 2
+# lib_sections = 
+# script_sections = 
+# source = 
+# language = 
+
+[Perl::Critic::Policy::ErrorHandling::RequireCarping]
+# set_themes = core maintenance pbp
+# severity   = 3
+# allow_messages_ending_with_newlines = 
+
+[Perl::Critic::Policy::InputOutput::ProhibitBacktickOperators]
+# set_themes = core maintenance
+# severity   = 3
+
+[Perl::Critic::Policy::InputOutput::ProhibitBarewordFileHandles]
+# set_themes = bugs core pbp
+# severity   = 5
+
+[Perl::Critic::Policy::InputOutput::ProhibitInteractiveTest]
+# set_themes = bugs core pbp
+# severity   = 5
+
+[Perl::Critic::Policy::InputOutput::ProhibitOneArgSelect]
+# set_themes = bugs core pbp
+# severity   = 4
+
+[Perl::Critic::Policy::InputOutput::ProhibitReadlineInForLoop]
+# set_themes = bugs core pbp
+# severity   = 4
+
+[Perl::Critic::Policy::InputOutput::ProhibitTwoArgOpen]
+# set_themes = bugs core pbp security
+# severity   = 5
+
+[Perl::Critic::Policy::InputOutput::RequireBracedFileHandleWithPrint]
+# set_themes = core cosmetic pbp
+# severity   = 1
+
+[Perl::Critic::Policy::InputOutput::RequireCheckedClose]
+# set_themes = core maintenance
+# severity   = 2
+
+[Perl::Critic::Policy::InputOutput::RequireCheckedOpen]
+# set_themes = core maintenance
+# severity   = 3
+
+[Perl::Critic::Policy::Miscellanea::ProhibitFormats]
+# set_themes = core maintenance pbp
+# severity   = 3
+
+[Perl::Critic::Policy::Miscellanea::ProhibitTies]
+# set_themes = core maintenance pbp
+# severity   = 2
+
+[Perl::Critic::Policy::Miscellanea::RequireRcsKeywords]
+# set_themes = core cosmetic pbp
+# severity   = 2
+# keywords = 
+
+[Perl::Critic::Policy::Modules::ProhibitAutomaticExportation]
+# set_themes = bugs core
+# severity   = 4
+
+[Perl::Critic::Policy::Modules::ProhibitEvilModules]
+# set_themes = bugs core
+# severity   = 5
+# modules = 
+
+[Perl::Critic::Policy::Modules::ProhibitMultiplePackages]
+# set_themes = bugs core
+# severity   = 4
+
+[Perl::Critic::Policy::Modules::RequireBarewordIncludes]
+# set_themes = core portability
+# severity   = 5
+
+[Perl::Critic::Policy::Modules::RequireEndWithOne]
+# set_themes = bugs core pbp
+# severity   = 4
+
+# Turn off default policy here, and replay with LAX policy
+[-Perl::Critic::Policy::Modules::RequireExplicitPackage]
+# set_themes = bugs core
+# severity   = 4
+# exempt_scripts = 
+
+[Perl::Critic::Policy::Lax::RequireExplicitPackage::ExceptForPragmata]
+
+[Perl::Critic::Policy::Modules::RequireFilenameMatchesPackage]
+# set_themes = bugs core
+# severity   = 5
+
+[Perl::Critic::Policy::Modules::RequireVersionVar]
+# set_themes = core pbp readability
+# severity   = 2
+
+[Perl::Critic::Policy::NamingConventions::ProhibitAmbiguousNames]
+# set_themes = core maintenance pbp
+# severity   = 3
+# forbid = 
+
+[Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseSubs]
+# set_themes = core cosmetic pbp
+# severity   = 1
+
+[Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars]
+# set_themes = core cosmetic pbp
+# severity   = 1
+
+[Perl::Critic::Policy::References::ProhibitDoubleSigils]
+# set_themes = core cosmetic pbp
+# severity   = 2
+
+[Perl::Critic::Policy::RegularExpressions::ProhibitCaptureWithoutTest]
+# set_themes = core maintenance pbp
+# severity   = 3
+
+[Perl::Critic::Policy::RegularExpressions::RequireExtendedFormatting]
+# set_themes = core maintenance pbp
+# severity   = 3
+
+[Perl::Critic::Policy::RegularExpressions::RequireLineBoundaryMatching]
+# set_themes = core cosmetic pbp
+# severity   = 2
+
+[Perl::Critic::Policy::Subroutines::ProhibitAmpersandSigils]
+# set_themes = core maintenance pbp
+# severity   = 2
+
+[Perl::Critic::Policy::Subroutines::ProhibitBuiltinHomonyms]
+# set_themes = bugs core pbp
+# severity   = 4
+
+[Perl::Critic::Policy::Subroutines::ProhibitExcessComplexity]
+# set_themes = complexity core maintenance
+# severity   = 3
+# max_mccabe = 
+
+[Perl::Critic::Policy::Subroutines::ProhibitExplicitReturnUndef]
+# set_themes = bugs core pbp
+# severity   = 5
+
+[Perl::Critic::Policy::Subroutines::ProhibitSubroutinePrototypes]
+# set_themes = bugs core pbp
+# severity   = 5
+
+[Perl::Critic::Policy::Subroutines::ProtectPrivateSubs]
+# set_themes = core maintenance
+# severity   = 3
+
+[Perl::Critic::Policy::Subroutines::RequireFinalReturn]
+# set_themes = bugs core pbp
+# severity   = 4
+# terminal_funcs = 
+
+[Perl::Critic::Policy::TestingAndDebugging::ProhibitNoStrict]
+# set_themes = bugs core pbp
+# severity   = 5
+# allow = 
+
+[Perl::Critic::Policy::TestingAndDebugging::ProhibitNoWarnings]
+# set_themes = bugs core pbp
+# severity   = 4
+# allow = 
+
+[Perl::Critic::Policy::TestingAndDebugging::ProhibitProlongedStrictureOverride]
+# set_themes = bugs core pbp
+# severity   = 4
+# statements = 
+
+[Perl::Critic::Policy::TestingAndDebugging::RequireTestLabels]
+# set_themes = core maintenance tests
+# severity   = 3
+# modules = 
+
+[Perl::Critic::Policy::TestingAndDebugging::RequireUseStrict]
+# set_themes = bugs core pbp
+# severity   = 5
+
+[Perl::Critic::Policy::TestingAndDebugging::RequireUseWarnings]
+# set_themes = bugs core pbp
+# severity   = 4
+
+[Perl::Critic::Policy::ValuesAndExpressions::ProhibitCommaSeparatedStatements]
+# set_themes = bugs core pbp
+# severity   = 4
+
+[Perl::Critic::Policy::ValuesAndExpressions::ProhibitConstantPragma]
+# set_themes = bugs core pbp
+# severity   = 4
+
+[Perl::Critic::Policy::ValuesAndExpressions::ProhibitEmptyQuotes]
+# set_themes = core cosmetic pbp
+# severity   = 2
+
+[Perl::Critic::Policy::ValuesAndExpressions::ProhibitEscapedCharacters]
+# set_themes = core cosmetic pbp
+# severity   = 2
+
+[Perl::Critic::Policy::ValuesAndExpressions::ProhibitInterpolationOfLiterals]
+# set_themes = core cosmetic pbp
+# severity   = 1
+# allow = 
+
+[Perl::Critic::Policy::ValuesAndExpressions::ProhibitLeadingZeros]
+# set_themes = bugs core pbp
+# severity   = 5
+
+[Perl::Critic::Policy::ValuesAndExpressions::ProhibitMismatchedOperators]
+# set_themes = bugs core
+# severity   = 3
+
+[Perl::Critic::Policy::ValuesAndExpressions::ProhibitMixedBooleanOperators]
+# set_themes = bugs core pbp
+# severity   = 4
+
+[Perl::Critic::Policy::ValuesAndExpressions::ProhibitNoisyQuotes]
+# set_themes = core cosmetic pbp
+# severity   = 2
+
+[Perl::Critic::Policy::ValuesAndExpressions::ProhibitVersionStrings]
+# set_themes = core maintenance pbp
+# severity   = 3
+
+[Perl::Critic::Policy::ValuesAndExpressions::RequireInterpolationOfMetachars]
+# set_themes = core cosmetic pbp
+# severity   = 1
+
+[Perl::Critic::Policy::ValuesAndExpressions::RequireNumberSeparators]
+# set_themes = core cosmetic pbp
+# severity   = 2
+# min_value = 
+
+[Perl::Critic::Policy::ValuesAndExpressions::RequireQuotedHeredocTerminator]
+# set_themes = core maintenance pbp
+# severity   = 3
+
+[Perl::Critic::Policy::ValuesAndExpressions::RequireUpperCaseHeredocTerminator]
+# set_themes = core cosmetic pbp
+# severity   = 2
+
+[Perl::Critic::Policy::Variables::ProhibitConditionalDeclarations]
+# set_themes = bugs core
+# severity   = 5
+
+[Perl::Critic::Policy::Variables::ProhibitLocalVars]
+# set_themes = core maintenance pbp
+# severity   = 2
+
+[Perl::Critic::Policy::Variables::ProhibitMatchVars]
+# set_themes = bugs core pbp
+# severity   = 4
+
+[Perl::Critic::Policy::Variables::ProhibitPackageVars]
+# set_themes = core maintenance pbp
+# severity   = 3
+# packages = 
+# add_packages = 
+
+[Perl::Critic::Policy::Variables::ProhibitPerl4PackageNames]
+# set_themes = core maintenance
+# severity   = 2
+
+[Perl::Critic::Policy::Variables::ProhibitPunctuationVars]
+# set_themes = core cosmetic pbp
+# severity   = 2
+# allow = 
+
+[Perl::Critic::Policy::Variables::ProtectPrivateVars]
+# set_themes = core maintenance
+# severity   = 3
+
+[Perl::Critic::Policy::Variables::RequireInitializationForLocalVars]
+# set_themes = bugs core pbp
+# severity   = 3
+
+[Perl::Critic::Policy::Variables::RequireLexicalLoopIterators]
+# set_themes = bugs core pbp
+# severity   = 5
+
+[Perl::Critic::Policy::Variables::RequireNegativeIndices]
+# set_themes = core maintenance pbp
+# severity   = 4
+
