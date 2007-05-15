@@ -17,8 +17,7 @@ use warnings;
 
 package Net::Google::PicasaWeb::Base;
 
-our ($VERSION) = q$Revision$ =~ /(\d+)/;
-eval $VERSION;
+our ($VERSION) = q$Revision$ =~ /(\d+)/xm;
 
 our $AUTOLOAD;
 
@@ -42,14 +41,14 @@ my %attributes = (
 sub AUTOLOAD {
     my ($self, $value) = @_;
     my $method = $AUTOLOAD;
-    $method =~ s/.*:://;
+    $method =~ s/.*:://xm;
 
     # Some things to ignore
     return if $method eq 'DESTROY';
 
     # Type:
     my $type;
-    if ($method =~ s/^_(get)_// or $method =~ s/^_(set)_//) {
+    if ($method =~ s/^_(get)_//xm or $method =~ s/^_(set)_//xm) {
         $type = $1;
     }
 
@@ -67,7 +66,7 @@ sub AUTOLOAD {
     return;
 }
 
-sub new { bless { %attributes }, $_[0]; }
+sub new { return bless { %attributes }, $_[0]; }
 
 sub _get_relation {
     my ($self, $type) = @_;
@@ -86,10 +85,10 @@ sub _get_relation {
     return;
 }
 
-sub _get_user  { $_[0]->_get_relation("User"); }
-sub _set_user  { $_[0]->_set_parent($_[1]); }
-sub _get_album { $_[0]->_get_relation("Album"); }
-sub _set_album { $_[0]->_set_parent($_[1]); }
+sub _get_user  { return $_[0]->_get_relation('User'); }
+sub _set_user  { return $_[0]->_set_parent($_[1]); }
+sub _get_album { return $_[0]->_get_relation("Album"); }
+sub _set_album { return $_[0]->_set_parent($_[1]); }
 
 sub _get_ua {
     my ($self) = @_;
@@ -109,7 +108,7 @@ sub _get_ua {
     return;
 }
 
-sub is_authenticated { $_[0]->_get_user->is_authenticated; }
+sub is_authenticated { return $_[0]->_get_user->is_authenticated; }
 
 sub _get_uri_from {
     my ($self, $from, $type, $typemap) = @_;
@@ -177,7 +176,7 @@ sub _get_feed {
         }
 
         my $atom = $response->content();
-        my $feed = XML::Atom::Feed->new(\$atom) or die "Bad Feed";
+        my $feed = XML::Atom::Feed->new(\$atom) or die 'Bad Feed';
         $self->_set_feed($feed);
     }
 
@@ -185,7 +184,7 @@ sub _get_feed {
     return $self->{feed};
 }
 
-sub _invalidate_feed { $_[0]->_set_feed(); }
+sub _invalidate_feed { $_[0]->_set_feed(); return 1; }
 
 sub _add_entry_to_feed {
     my ($self, $entry) = @_;
@@ -199,7 +198,7 @@ sub _add_entry_to_feed {
         $uri,
         [
             Content_Length => length $xml,
-            Content_Type   => "application/atom+xml",
+            Content_Type   => 'application/atom+xml',
         ],
         $xml,
     );
@@ -217,7 +216,7 @@ sub _add_entry_to_feed {
     }
 
     my $atom = $response->content();
-    my $new_entry = XML::Atom::Entry->new(\$atom) or die "Bad Entry";
+    my $new_entry = XML::Atom::Entry->new(\$atom) or die 'Bad Entry';
 
     $self->_invalidate_feed();
 
@@ -236,7 +235,7 @@ sub _update_entry {
         $uri,
         [
             Content_Length => length $xml,
-            Content_Type   => "application/atom+xml",
+            Content_Type   => 'application/atom+xml',
         ],
         $xml,
     );
@@ -254,7 +253,7 @@ sub _update_entry {
     }
 
     my $atom = $response->content();
-    my $new_entry = XML::Atom::Entry->new(\$atom) or die "Bad Entry";
+    my $new_entry = XML::Atom::Entry->new(\$atom) or die 'Bad Entry';
 
     $self->_set_entry($new_entry);
 
@@ -293,3 +292,8 @@ sub _delete_entry {
 }
 
 1; # End of Base.pm
+__END__
+
+=pod
+
+=cut

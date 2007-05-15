@@ -15,8 +15,7 @@ use warnings;
 
 package Net::Google::PicasaWeb::Album;
 
-our ($VERSION) = q$Revision$ =~ /(\d+)/;
-eval $VERSION;
+our ($VERSION) = q$Revision$ =~ /(\d+)/xm;
 
 use Net::Google::PicasaWeb::Base();
 use Net::Google::PicasaWeb::Photo();
@@ -37,9 +36,9 @@ sub new {
     # Must have an entry and a user object
     croak 'Usage: ' . __PACKAGE__ . '->new($entry, $user)' if @_ < 3;
     croak qq(Parameter 1 to $class->new must be an album entry object)
-        unless ref($entry) and $entry->isa('XML::Atom::Entry');
+        unless ref $entry and $entry->isa('XML::Atom::Entry');
     croak qq(Parameter 2 to $class->new must be a user object)
-        unless ref($user) and $user->isa('Net::Google::PicasaWeb::User');
+        unless ref $user and $user->isa('Net::Google::PicasaWeb::User');
 
     my $self = $class->SUPER::new();
 
@@ -49,22 +48,22 @@ sub new {
     return $self;
 }
 
-sub title     { $_[0]->_get_entry->title; }
-sub summary   { $_[0]->_get_entry->summary; }
-sub rights    { $_[0]->_get_entry->rights; }
-sub id        { $_[0]->_get_entry->gphoto->id; }
-sub numphotos { $_[0]->_get_entry->gphoto->numphotos; }
-sub location  { $_[0]->_get_entry->gphoto->location; }
-sub timestamp { $_[0]->_get_entry->gphoto->timestamp; }
+sub title     { return $_[0]->_get_entry->title; }
+sub summary   { return $_[0]->_get_entry->summary; }
+sub rights    { return $_[0]->_get_entry->rights; }
+sub id        { return $_[0]->_get_entry->gphoto->id; }
+sub numphotos { return $_[0]->_get_entry->gphoto->numphotos; }
+sub location  { return $_[0]->_get_entry->gphoto->location; }
+sub timestamp { return $_[0]->_get_entry->gphoto->timestamp; }
 
-sub date { gphoto_timestamp_to_date($_[0]->timestamp()); }
+sub date { return gphoto_timestamp_to_date($_[0]->timestamp()); }
 
 sub describe {
     my ($self) = @_;
 
     print $self->title, "\t[", $self->summary, "]\n";
-    print "  Album ID: ", $self->id, " - ", $self->numphotos, " ", $self->rights, " photo(s)\n";
-    print "  Location: ", $self->location, " \n";
+    print '  Album ID: ', $self->id, ' - ', $self->numphotos, ' ', $self->rights, " photo(s)\n";
+    print '  Location: ', $self->location, " \n";
 
     return 1;
 }
@@ -110,18 +109,18 @@ sub add_photo {
     croak q(opts must be a hash ref.) unless ref($opts) eq 'HASH';
 
     # Pre-requsites
-    croak qq(Must be logged in to upload.) unless $self->is_authenticated();
+    croak q(Must be logged in to upload.) unless $self->is_authenticated();
 
     # Allowed options and default values:
-    my %options = ( 
-        description => '', 
+    my %options = (
+        description => q{},
         progress    => sub{ return 0; },
         userdata    => undef,
         headers     => undef,
     );
 
     # Check supplied options
-    for (keys %$opts) {
+    for (keys %{$opts}) {
         unless (exists $options{$_}) {
             carp qq(Ignoring unrecognised option '$_');
             delete $opts->{$_};
@@ -129,7 +128,7 @@ sub add_photo {
     }
 
     # Apply supplied options
-    %options = ( %options, %$opts );
+    %options = ( %options, %{$opts} );
 
     # Final check.
     croak q(option progress must be a code ref) unless ref($options{progress}) eq 'CODE';
@@ -160,7 +159,7 @@ sub add_photo {
     # slurp the whole file into memory.
 
     # Ensure we can open the file for reading.
-    open my $fh, "<", $filepath or die qq(Failed to open '$filepath': $^E);
+    open my $fh, '<', $filepath or die qq(Failed to open '$filepath': $^E);
     # It's binary data!
     binmode $fh;
 
@@ -170,9 +169,9 @@ sub add_photo {
     my $start_time = time;
 
     my $code = $options{progress};
-    my $userdata = defined $options{userdata} ? $options{userdata} : '';
+    my $userdata = defined $options{userdata} ? $options{userdata} : q{};
 
-    $code->("begin", $sent, $filesize, $userdata);
+    $code->('begin', $sent, $filesize, $userdata);
 
     $req->content( sub {
         # Hook to provide progress callback to user
@@ -181,24 +180,24 @@ sub add_photo {
         my $elapsed   = time - $start_time;
         my $speed     = $elapsed == 0 ? 0 : ($sent * 8) / $elapsed; # Avoid div by 0
 
-        if( $code->("upload", $sent, $filesize, $userdata) ) {
+        if( $code->('upload', $sent, $filesize, $userdata) ) {
             # ABORT upload
             $abort = 1;
-            $code->("aborting", $sent, $filesize, $userdata);
-            return '';
+            $code->('aborting', $sent, $filesize, $userdata);
+            return q{};
         }
 
         # Read the next chunk of data
-        my $r = sysread($fh, my $buf, guess_block_size($remaining, $speed));
+        my $r = sysread $fh, my $buf, guess_block_size($remaining, $speed); # TODO shouldn't use remaining?
 
         if (!defined $r) { # ERROR
             die $!;
         }
         elsif ($r == 0) {  # EOF
             close $fh;
-            return '';
+            return q{};
         }
-		
+
         # Increment byte counter and return buffer to
         # UserAgent
         $sent += $r;
@@ -208,8 +207,8 @@ sub add_photo {
     my $response = $self->_get_ua->request($req);
 
     if($abort) {
-        $code->("aborted", $sent, $filesize, $userdata);
-        $self->_get_last_error("User aborted upload");
+        $code->('aborted', $sent, $filesize, $userdata);
+        $self->_set_last_error('User aborted upload');
         return;
     }
 
@@ -218,13 +217,13 @@ sub add_photo {
             qq(Failed to upload photo to '$uri'.  Server said:\n) .
             qq(---- Response Starts ----\n) .
             $response->as_string() .
-            qq(----- Response Ends -----\n")
+            qq(----- Response Ends -----\n)
         );
-        $code->("failed", $sent, $filesize, $userdata);
+        $code->('failed', $sent, $filesize, $userdata);
         return;
     }
 
-    $code->("uploaded", $sent, $filesize, $userdata);
+    $code->('uploaded', $sent, $filesize, $userdata);
 
     my $atom = $response->content();
     my $new_entry = XML::Atom::Entry->new(\$atom);
@@ -234,7 +233,7 @@ sub add_photo {
     # Step 2: upload the metadata
     #################################
 
-    $code->("metadata", $sent, $filesize, $userdata);
+    $code->('metadata', $sent, $filesize, $userdata);
 
     my $result = $new_photo->update_info( {
         title   => $filename,
@@ -246,11 +245,11 @@ sub add_photo {
             qq(Failed to update photo info.\n) .
             $new_photo->_get_last_error
         );
-        $code->("failed", $sent, $filesize, $userdata);
+        $code->('failed', $sent, $filesize, $userdata);
         return;
     }
 
-    $code->("done", $sent, $filesize, $userdata);
+    $code->('done', $sent, $filesize, $userdata);
 
     return $new_photo;
 }
@@ -322,3 +321,8 @@ sub add_photo {
 #}
 
 1; # End of Album.pm
+__END__
+
+=pod
+
+=cut

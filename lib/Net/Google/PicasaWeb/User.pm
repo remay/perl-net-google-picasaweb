@@ -15,8 +15,7 @@ use warnings;
 
 package Net::Google::PicasaWeb::User;
 
-our ($VERSION) = q$Revision$ =~ /(\d+)/;
-eval $VERSION;
+our ($VERSION) = q$Revision$ =~ m/(\d+)/xm;
 
 use Net::Google::PicasaWeb::ClientLogin();
 use Net::Google::PicasaWeb::Namespaces();
@@ -57,13 +56,13 @@ sub new {
     croak q(opts must be a hash ref.) unless ref($opts) eq 'HASH';
 
     # Allowed options and default values:
-    my %options = ( 
-        password => undef, 
+    my %options = (
+        password => undef,
         ua       => undef,
     );
 
     # Check supplied options
-    for (keys %$opts) {
+    for (keys %{$opts}) {
         unless (exists $options{$_}) {
             carp qq(Ignoring unrecognised option '$_');
             delete $opts->{$_};
@@ -71,7 +70,7 @@ sub new {
     }
 
     # Apply supplied options
-    %options = ( %options, %$opts );
+    %options = ( %options, %{$opts} );
 
     # Create or use supplied User Agent
     {
@@ -94,17 +93,17 @@ sub new {
     my $dummy = XML::Atom::Entry->new(Version => '1.0');
 
     my @link_info = (
-        { rel  => "http://schemas.google.com/g/2005#feed",
-          type => "application/atom+xml",
+        { rel  => 'http://schemas.google.com/g/2005#feed',
+          type => 'application/atom+xml',
           href => "http://picasaweb.google.com/data/feed/api/user/$username" },
-        { rel  => "http://schemas.google.com/g/2005#post",
-          type => "application/atom+xml",
+        { rel  => 'http://schemas.google.com/g/2005#post',
+          type => 'application/atom+xml',
           href => "http://picasaweb.google.com/data/feed/api/user/$username" },
-        { rel  => "alternate",
-          type => "text/html",
+        { rel  => 'alternate',
+          type => 'text/html',
           href => "http://picasaweb.google.com/$username" },
-        { rel  => "self",
-          type => "application/atom+xml",
+        { rel  => 'self',
+          type => 'application/atom+xml',
           href => "http://picasaweb.google.com/data/feed/api/user/$username" },
     );
 
@@ -145,23 +144,23 @@ sub login {
     return 1;
 }
 
-sub quotalimit        { $_[0]->_get_feed->gphoto->quotalimit; }
-sub quotacurrent      { $_[0]->_get_feed->gphoto->quotacurrent; }
-sub maxPhotosPerAlbum { $_[0]->_get_feed->gphoto->maxPhotosPerAlbum; }
+sub quotalimit        { return $_[0]->_get_feed->gphoto->quotalimit; }
+sub quotacurrent      { return $_[0]->_get_feed->gphoto->quotacurrent; }
+sub maxPhotosPerAlbum { return $_[0]->_get_feed->gphoto->maxPhotosPerAlbum; }
 
 sub describe {
     my ($self) = @_;
 
-    print "User information for user '", $self->_get_username, "'.\n";
+    print q{User information for user '}, $self->_get_username, qq{'.\n};
 
     if($self->is_authenticated()) {
-        print "  Logged in.\n";
-        print "  Using ", format_bytes($self->quotacurrent()), " of ",
-            format_bytes($self->quotalimit()), ".\n";
-        print "  Maximum of ", $self->maxPhotosPerAlbum(), " photos per album.\n";
+        print qq{  Logged in.\n};
+        print  q{  Using }, format_bytes($self->quotacurrent()), q{ of },
+            format_bytes($self->quotalimit()), qq{.\n};
+        print  q{  Maximum of }, $self->maxPhotosPerAlbum(), qq{ photos per album.\n};
     }
     else {
-        print "  Not logged in.\n";
+        print qq{  Not logged in.\n};
     }
 
     return 1;
@@ -188,12 +187,12 @@ sub add_album {
     croak q(opts must be a hash ref.) unless ref($opts) eq 'HASH';
 
     # Pre-requsites
-    croak qq(Must be logged in to update) unless $self->is_authenticated();
+    croak q(Must be logged in to update) unless $self->is_authenticated();
 
     # Allowed options and default values:
-    my %options = ( 
-        title       => undef, 
-        timestamp   => time, 
+    my %options = (
+        title       => undef,
+        timestamp   => time,
         description => undef,
         location    => undef,
         private     => 0,
@@ -201,7 +200,7 @@ sub add_album {
     );
 
     # Check supplied options
-    for (keys %$opts) {
+    for (keys %{$opts}) {
         unless (exists $options{$_}) {
             carp qq(Ignoring unrecognised option '$_');
             delete $opts->{$_};
@@ -209,7 +208,7 @@ sub add_album {
     }
 
     # Apply supplied options
-    %options = ( %options, %$opts );
+    %options = ( %options, %{$opts} );
 
     # Check opts
 
@@ -235,3 +234,8 @@ sub add_album {
 }
 
 1; # End of User.pm
+__END__
+
+=pod
+
+=cut

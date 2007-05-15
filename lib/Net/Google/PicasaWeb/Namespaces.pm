@@ -15,8 +15,7 @@ use warnings;
 
 package Net::Google::PicasaWeb::Namespaces;
 
-our ($VERSION) = q$Revision$ =~ /(\d+)/;
-eval $VERSION;
+our ($VERSION) = q$Revision$ =~ /(\d+)/xm;
 
 our @ISA = qw( XML::Atom::Base );
 
@@ -43,7 +42,7 @@ my %namespace_lookup = map
 sub mk_object_accessor {
     my $class = shift;
     my($mkclass, $name, $ext_class) = @_;
-    no strict 'refs';
+    no strict 'refs';   ## no critic
     (my $meth = $name) =~ tr/\-/_/;
     *{"${mkclass}::$meth"} = sub {
         my $obj = shift;
@@ -55,12 +54,14 @@ sub mk_object_accessor {
             return $obj->get_object($ns_uri, $name, $ext_class);
         }
     };
+
+    return;
 }
 
 sub mk_elem_accessors {
     my $class = shift;
     my(@list) = @_;
-    no strict 'refs';
+    no strict 'refs';   ## no critic
     for my $elem (@list) {
         (my $meth = $elem) =~ tr/\-/_/;
         *{"${class}::$meth"} = sub {
@@ -74,13 +75,15 @@ sub mk_elem_accessors {
             }
         };
     }
+
+    return;
 }
 
 sub mk_object_list_accessor {
     my $class = shift;
     my($name, $ext_class, $moniker) = @_;
 
-    no strict 'refs';
+    no strict 'refs';   ## no critic
 
     *{"$class\::$name"} = sub {
         my $obj = shift;
@@ -135,6 +138,8 @@ sub mk_object_list_accessor {
             }
         }
     };
+
+    return;
 }
 
 ######################################################################
@@ -156,9 +161,9 @@ sub init {
         );
 	}
 
-	$obj;
+	return $obj;
 }
-	
+
 package XML::Atom::Gphoto;
 
 our @ISA = qw( Net::Google::PicasaWeb::Namespaces );
@@ -176,13 +181,13 @@ for my $class (qw( XML::Atom::Feed XML::Atom::Entry )) {
     __PACKAGE__->mk_object_accessor( $class, gphoto => __PACKAGE__ );
 }
 
-sub element_name { 'gphoto' }
-sub element_ns   { $namespaces{gphoto}->{uri} }
+sub element_name { return 'gphoto' }
+sub element_ns   { return $namespaces{gphoto}->{uri} }
 
 sub mk_object_accessor {
     my $class = shift;
     my($mkclass, $name, $ext_class) = @_;
-    no strict 'refs';
+    no strict 'refs';   ## no critic
     (my $meth = $name) =~ tr/\-/_/;
     *{"${mkclass}::$meth"} = sub {
         my $obj = shift;
@@ -191,19 +196,19 @@ sub mk_object_accessor {
         if (@_) {
 			# Setter: (1) remove all gphoto namespace items
 			# (2) add the new ones
-			my @elem = childlist($obj->elem, $ns_uri, '*');
+			my @elem = childlist($obj->elem, $ns_uri, q{*});
             for my $el (@elem) {
                 $obj->elem->removeChild($el);
             }
 
-			@elem = childlist($_[0]->elem, $ns_uri, '*');
+			@elem = childlist($_[0]->elem, $ns_uri, q{*});
 			for my $el (@elem) {
 				$obj->elem->appendChild($el);
 			}
 
             return $obj;
         } else {
-			my @elem = childlist($obj->elem, $ns_uri, '*');
+			my @elem = childlist($obj->elem, $ns_uri, q{*});
 			my $new_obj = $ext_class->new();
 			for my $el (@elem) {
 				my $name = $el->localname;
@@ -213,6 +218,8 @@ sub mk_object_accessor {
             return $new_obj;
         }
     };
+
+    return;
 }
 
 package XML::Atom::MediaGroup;
@@ -234,8 +241,8 @@ for my $class (qw( XML::Atom::Feed XML::Atom::Entry )) {
     __PACKAGE__->mk_object_accessor( $class, group => __PACKAGE__ );
 }
 
-sub element_name { 'group' }
-sub element_ns   { $namespaces{media}->{uri} }
+sub element_name { return 'group' }
+sub element_ns   { return $namespaces{media}->{uri} }
 
 package XML::Atom::MediaGroup::Content;
 
@@ -245,8 +252,8 @@ __PACKAGE__->mk_attr_accessors(qw(
     url type medium height width filesize
 ));
 
-sub element_name { 'content' }
-sub element_ns   { $namespaces{media}->{uri} }
+sub element_name { return 'content' }
+sub element_ns   { return $namespaces{media}->{uri} }
 
 package XML::Atom::MediaGroup::Thumbnail;
 
@@ -254,8 +261,8 @@ our @ISA = qw( Net::Google::PicasaWeb::Namespaces );
 
 __PACKAGE__->mk_attr_accessors(qw( url height width ));
 
-sub element_name { 'thumbnail' }
-sub element_ns   { $namespaces{media}->{uri} }
+sub element_name { return 'thumbnail' }
+sub element_ns   { return $namespaces{media}->{uri} }
 
 package XML::Atom::Exiftags;
 
@@ -269,8 +276,8 @@ for my $class (qw( XML::Atom::Feed XML::Atom::Entry )) {
     __PACKAGE__->mk_object_accessor( $class, tags => __PACKAGE__ );
 }
 
-sub element_name { 'tags' }
-sub element_ns   { $namespaces{exif}->{uri} }
+sub element_name { return 'tags' }
+sub element_ns   { return $namespaces{exif}->{uri} }
 
 1; # End of Namespaces.pm
 
@@ -545,7 +552,7 @@ This module's homepage.
 
 Robert May, E<lt>robertmay@cpan.orgE<gt>
 
-=head1 COPYRIGHT AND LICENSE
+=head1 LICENCE AND COPYRIGHT
 
 Copyright (C) 2007 by Robert May
 

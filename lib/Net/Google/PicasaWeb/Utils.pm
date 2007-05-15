@@ -18,8 +18,7 @@ use warnings;
 
 package Net::Google::PicasaWeb::Utils;
 
-our ($VERSION) = q$Revision$ =~ /(\d+)/;
-eval $VERSION;
+our ($VERSION) = q$Revision$ =~ m/(\d+)/xm;
 
 use Carp qw(croak);
 use Exporter qw(import);
@@ -32,16 +31,16 @@ sub format_bytes {
 
     croak q(Usage: format_bytes($bytes)) if @_ < 1;
 
-    return sprintf "%.3f TB", $n / (1024 * 1024 * 1024 * 1024)
+    return sprintf '%.3f TB', $n / (1024 * 1024 * 1024 * 1024)
 	if $n >= 1024 * 1024 * 1024 * 1024;
 
-    return sprintf "%.3f GB", $n / (1024 * 1024 * 1024)
+    return sprintf '%.3f GB', $n / (1024 * 1024 * 1024)
 	if $n >= 1024 * 1024 * 1024;
 
-    return sprintf "%.3f MB", $n / (1024 * 1024)
+    return sprintf '%.3f MB', $n / (1024 * 1024)
 	if $n >= 1024 * 1024;
     
-    return sprintf "%.3f KB", $n / 1024
+    return sprintf '%.3f KB', $n / 1024
 	if $n >= 1024;
 
     return "$n bytes";
@@ -59,7 +58,7 @@ sub guess_block_size {
     croak('Usage: guess_block_size($filesize, $connect_speed)') if @_ < 1;
     croak('filesize cannot be negative') if $filesize < 0;
     # Use default slowish speed, if speed not passed
-    $speed = 40000 if (!defined $speed) or ($speed == 0);
+    $speed = 40_000 if not defined $speed or $speed == 0;
     croak('connect_speed cannot be negative') unless $speed > 0;
 
 	# Initial minimum size
@@ -74,7 +73,7 @@ sub guess_block_size {
 	$block_size = $speed / 8 if $speed / 8 < $block_size;
 
 	# Reduce block size to next lower power of 2.
-	my $r = int ( log($block_size) / log(2) );
+	my $r = int ( (log $block_size) / (log 2) );
 	$block_size = 2 ** $r;
 
 	return $block_size;
@@ -85,11 +84,11 @@ sub gphoto_timestamp_to_date {
 
     croak q(Usage: gphoto_timestamp_to_date($timestamp)) if @_ < 1;
 
-    my ($mday, $mon, $year) = (gmtime(int($timestamp/1000)))[3,4,5];
+    my ($mday, $mon, $year) = (gmtime int $timestamp/1000)[3,4,5];
     $year += 1900;
     $mon += 1;
 
-    return sprintf("%02d-%02d-%4d", $mday, $mon, $year);
+    return sprintf '%02d-%02d-%4d', $mday, $mon, $year;
 }
 
 1; # End of Utils.pm
@@ -197,7 +196,7 @@ This module's homepage.
 
 Robert May, E<lt>robertmay@cpan.orgE<gt>
 
-=head1 COPYRIGHT AND LICENSE
+=head1 LICENCE AND COPYRIGHT
 
 Copyright (C) 2007 by Robert May
 

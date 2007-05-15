@@ -1,4 +1,4 @@
-LICENCE - add
+LICENCE - add  and LICENCE.Artistic, LICENCE.GPL
 Changes - update
 
 boiler plate at top of each file
@@ -35,6 +35,9 @@ Documentation still needed for:
 Add DIAGOSTICS sections to POD describing error messages
 
 Add AUDIENCE section to POD indicating whether the doc is for users or developers
+
+Split Namespaces.pm, and move XML:Atom subclasses into
+Net::Google::PicasaWeb::XML::Atom ??? or XML::Atom ???
 
 Security - wipe passwords before destroying objects. Not great, but better
 than nothing

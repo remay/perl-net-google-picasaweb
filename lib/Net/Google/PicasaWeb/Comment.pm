@@ -15,8 +15,7 @@ use warnings;
 
 package Net::Google::PicasaWeb::Comment;
 
-our ($VERSION) = q$Revision$ =~ /(\d+)/;
-eval $VERSION;
+our ($VERSION) = q$Revision$ =~ /(\d+)/xm;
 
 use Net::Google::PicasaWeb::Base();
 use Net::Google::PicasaWeb::Namespaces();
@@ -31,9 +30,9 @@ sub new {
     # Must have an entry and an album object
     croak 'Usage: ' . __PACKAGE__ . '->new($entry, $photo)' if @_ < 3;
     croak qq(Parameter 1 to $class->new must be a comment entry object)
-        unless ref($entry) and $entry->isa('XML::Atom::Entry');
+        unless ref $entry and $entry->isa('XML::Atom::Entry');
     croak qq(Parameter 2 to $class->new must be a photo object)
-        unless ref($photo) and $photo->isa('Net::Google::PicasaWeb::Photo');
+        unless ref $photo and $photo->isa('Net::Google::PicasaWeb::Photo');
 
     my $self = $class->SUPER::new();
 
@@ -43,9 +42,9 @@ sub new {
     return $self;
 }
 
-sub title    { $_[0]->_get_entry->title; }
-sub summary  { $_[0]->_get_entry->summary; }
-sub id       { $_[0]->_get_entry->gphoto->id; }
+sub title    { return $_[0]->_get_entry->title; }
+sub summary  { return $_[0]->_get_entry->summary; }
+sub id       { return $_[0]->_get_entry->gphoto->id; }
 
 sub describe {
     my ($self) = @_;
@@ -71,13 +70,13 @@ sub update {
     croak qq(Must be logged in to update.) unless $self->is_authenticated();
 
     # Allowed options and default values:
-    my %options = ( 
-        title    => $self->title, 
-        summary  => $self->summary, 
+    my %options = (
+        title    => $self->title,
+        summary  => $self->summary,
     );
 
     # Check supplied options
-    for (keys %$opts) {
+    for (keys %{$opts}) {
         unless (exists $options{$_}) {
             carp qq(Ignoring unrecognised option '$_');
             delete $opts->{$_};
@@ -104,3 +103,8 @@ sub delete {
 }
 
 1; # End of Comment.pm
+__END__
+
+=pod
+
+=cut

@@ -15,8 +15,7 @@ use warnings;
 
 package Net::Google::PicasaWeb::Photo;
 
-our ($VERSION) = q$Revision$ =~ /(\d+)/;
-eval $VERSION;
+our ($VERSION) = q$Revision$ =~ m/(\d+)/xm;
 
 use Net::Google::PicasaWeb::Base();
 use Net::Google::PicasaWeb::Namespaces();
@@ -33,9 +32,9 @@ sub new {
     # Must have an entry and an album object
     croak 'Usage: ' . __PACKAGE__ . '->new($entry, $album)' if @_ < 3;
     croak qq(Parameter 1 to $class->new must be a photo entry object)
-        unless ref($entry) and $entry->isa('XML::Atom::Entry');
+        unless ref $entry and $entry->isa('XML::Atom::Entry');
     croak qq(Parameter 2 to $class->new must be an album object)
-        unless ref($album) and $album->isa('Net::Google::PicasaWeb::Album');
+        unless ref $album and $album->isa('Net::Google::PicasaWeb::Album');
 
     my $self = $class->SUPER::new();
 
@@ -45,19 +44,19 @@ sub new {
     return $self;
 }
 
-sub title    { $_[0]->_get_entry->title; }
-sub summary  { $_[0]->_get_entry->summary; }
-sub id       { $_[0]->_get_entry->gphoto->id; }
-sub width    { $_[0]->_get_entry->gphoto->width; }
-sub height   { $_[0]->_get_entry->gphoto->height; }
-sub size     { $_[0]->_get_entry->gphoto->size; }
-sub keywords { $_[0]->_get_entry->group->keywords; }
+sub title    { return $_[0]->_get_entry->title; }
+sub summary  { return $_[0]->_get_entry->summary; }
+sub id       { return $_[0]->_get_entry->gphoto->id; }
+sub width    { return $_[0]->_get_entry->gphoto->width; }
+sub height   { return $_[0]->_get_entry->gphoto->height; }
+sub size     { return $_[0]->_get_entry->gphoto->size; }
+sub keywords { return $_[0]->_get_entry->group->keywords; }
 
 sub describe {
     my ($self) = @_;
 
-    print $self->title, "\t[", $self->summary, "] ", $self->width, "x",
-    $self->height, " ", format_bytes($self->size), "\n";
+    print $self->title, "\t[", $self->summary, '] ', $self->width, 'x',
+    $self->height, q{ }, format_bytes($self->size), "\n";
 
     return 1;
 }
@@ -75,14 +74,14 @@ sub update_info {
     croak qq(Must be logged in to update.) unless $self->is_authenticated();
 
     # Allowed options and default values:
-    my %options = ( 
-        title    => $self->title, 
-        summary  => $self->summary, 
-        keywords => $self->keywords, 
+    my %options = (
+        title    => $self->title,
+        summary  => $self->summary,
+        keywords => $self->keywords,
     );
 
     # Check supplied options
-    for (keys %$opts) {
+    for (keys %{$opts}) {
         unless (exists $options{$_}) {
             carp qq(Ignoring unrecognised option '$_');
             delete $opts->{$_};
@@ -90,7 +89,7 @@ sub update_info {
     }
 
     # Apply supplied options
-    %options = ( %options, %$opts );
+    %options = ( %options, %{$opts} );
 
     # Create <entry> for photo
     my $entry = XML::Atom::PicasaEntry->new();
@@ -124,3 +123,8 @@ sub add_comment {
 }
 
 1; # End of Photo.pm
+__END__
+
+=pod
+
+=cut

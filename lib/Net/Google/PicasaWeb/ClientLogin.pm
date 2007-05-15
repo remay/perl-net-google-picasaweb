@@ -18,8 +18,7 @@ use warnings;
 
 package Net::Google::PicasaWeb::ClientLogin;
 
-our ($VERSION) = q$Revision$ =~ /(\d+)/;
-eval $VERSION;
+our ($VERSION) = q$Revision$ =~ m/(\d+)/xm;
 
 use Carp           qw(carp croak);
 use LWP::UserAgent qw();
@@ -28,7 +27,7 @@ use Exporter       qw(import);
 
 our @EXPORT_OK = qw($LastError $ClientLoginUrl);
 
-our $LastError = '';
+our $LastError = q{};
 our $ClientLoginUrl = 'https://www.google.com/accounts/ClientLogin';
 
 sub APP_NAME()         { 'Perl-' . __PACKAGE__ . "-$VERSION" }
@@ -71,28 +70,28 @@ sub login {
     my ($class, $user, $pass, $opts) = @_;
 
     my $self = bless {}, $class;
-    
+ 
     # Must have at least user and password
     croak 'Usage: ' . __PACKAGE__ . '->login($user, $password, \%opts)' if @_ < 3;
     croak q(Missing user name) unless length($user) > 0;
     croak q(Missing password)  unless length($pass) > 0;
     # User must have a domain
-    $user .= '@gmail.com' unless $user =~ m/@/;
+    $user .= '@gmail.com' unless $user =~ m/@/xm;
 
     # Opts must be a hash ref
     $opts = {} unless defined $opts;
     croak q(opts must be a hash ref.) unless ref($opts) eq 'HASH';
 
     # Allowed options and default values:
-    my %options = ( 
-        service     => 'lh2', 
+    my %options = (
+        service     => 'lh2',
         source      => APP_NAME,
         accountType => 'GOOGLE',
         ua          => LWP::UserAgent->new(),
     );
 
     # Check supplied options
-    for (keys %$opts) {
+    for (keys %{$opts}) {
         unless (exists $options{$_}) {
             carp qq(Ignoring unrecognised option '$_');
             delete $opts->{$_};
@@ -100,7 +99,7 @@ sub login {
     }
 
     # Apply supplied options
-    %options = ( %options, %$opts );
+    %options = ( %options, %{$opts} );
 
     # Check options.  We don't check service, source, or
     # accountType, as we assume anyone using them has a clue.
@@ -112,9 +111,9 @@ sub login {
     $self->{ua} = $options{ua};
     # Store login credentials
     $self->{credentials} = {
-        Email       => $user, 
-        Passwd      => $pass, 
-        service     => $options{service}, 
+        Email       => $user,
+        Passwd      => $pass,
+        service     => $options{service},
         source      => $options{source},
         accountType => $options{accountType},
     };
@@ -159,13 +158,13 @@ sub _login {
 
     # Extract Auth token from response
     my $c = $response->content();
-    my ($auth) = $c =~ m/Auth=(.+)(\s+|$)/; 
+    my ($auth) = $c =~ m/Auth=(.+)(\s+|$)/xm;
     die qq(Couldn't extract auth token from '$c') unless defined $auth;
 
     # store auth token
     $self->{auth} = $auth;
     # Store the time that this authentication will expire
-    $self->{auth_expires} = time + AUTH_VALID_TIME; 
+    $self->{auth_expires} = time + AUTH_VALID_TIME;
 
     # Add the authorisation token to the User Agent's
     # default headers.
@@ -238,7 +237,7 @@ sub _generate_error_message {
         my $message = $response->message();
         my $content = $response->content();
 
-        if($content =~ m/Error=(.+)(\s+|$)/) {
+        if($content =~ m/Error=(.+)(\s+|$)/xm) {
             my $error = $1;
             my $reason = $reasons{$error};
             $reason = "Unknown error type '$error'" unless $reason;
@@ -446,3 +445,8 @@ sub is_valid {
 }
 
 1; # End of ClientLogin.pm
+__END__
+
+=pod
+
+=cut

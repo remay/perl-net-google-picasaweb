@@ -15,8 +15,8 @@ use warnings;
 
 package Net::Google::PicasaWeb;
 
-our $VERSION = "0.00_01";
-eval $VERSION;
+our $VERSION = '0.00_01';                # for MakeMaker and CPAN
+$VERSION = eval $VERSION ;  ## no critic # for Perl (see perlmodstyle)
 
 use Net::Google::PicasaWeb::User();
 
@@ -38,6 +38,10 @@ Net::Google::PicasaWeb - A Perl OO binding to the Google Picasa Web Data API
   my @albums = $user->get_albums();
 
   my @photos = $album[0]->get_photos();
+
+=head1 VERSION
+
+This is version 0.00_01
 
 =head1 DESCRIPTION
 
@@ -133,9 +137,27 @@ picasaweb service.
 See L<Net::Google::PicasaWeb::Namespaces|Net::Google::PicasaWeb::Namespaces>
 for further information.
 
-=head1 DEPENDANCIES
+=head1 DIAGNOSTICS
 
 XXX
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+XXX
+
+=head1 DEPENDENCIES
+
+XXX
+
+=head1 INCOMPATIBILITIES
+
+XXX
+
+=head1 BUGS AND LIMITATIONS
+
+There are no known bugs in this module.
+Please report problems to E<lt>robertmay@cpan.orgE<gt>
+Patches welcome.
 
 =head1 SEE ALSO
 
@@ -155,11 +177,15 @@ This module's homepage.
 
 Robert May, E<lt>robertmay@cpan.orgE<gt>
 
-=head1 COPYRIGHT AND LICENSE
+=head1 LICENSE AND COPYRIGHT
 
 Copyright (C) 2007 by Robert May
 
 This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+it under the same terms as Perl itself. See L<perlartistic>.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSES.
 
 =cut
