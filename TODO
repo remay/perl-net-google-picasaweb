@@ -13,6 +13,7 @@ gphoto_timestamp_to_date should be configurable for format
 
 Base: make attributes per instance; allows User to have username and
       cli attributes.
+      remove AUTOLOAD
 
 Photo: keywords() should return string in scalar context, list of keywords
        in list context
