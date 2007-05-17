@@ -17,17 +17,15 @@ package Net::Google::PicasaWeb::User;
 
 our ($VERSION) = q$Revision$ =~ m/(\d+)/xm;
 
-use Net::Google::PicasaWeb::ClientLogin();
-use Net::Google::PicasaWeb::Namespaces();
-use Net::Google::PicasaWeb::Base();
-use Net::Google::PicasaWeb::Album();
-use Net::Google::PicasaWeb::Utils qw(format_bytes);
+use Net::Google::PicasaWeb::ClientLogin qw();
+use Net::Google::PicasaWeb::Base        qw();
+use Net::Google::PicasaWeb::Album       qw();
+use Net::Google::PicasaWeb::Utils       qw(format_bytes);
 
 our @ISA = qw(Net::Google::PicasaWeb::Base);
 
-use Carp qw(croak carp);
-use URI();
-use LWP::UserAgent();
+use Carp           qw(croak carp);
+use LWP::UserAgent qw();
 
 ######################################################################
 # my $pw = Net::Google::PicasaWeb->new( $user, \%opts )
@@ -48,12 +46,12 @@ sub new {
 
     # Must have at least a user
     croak 'Usage: ' . __PACKAGE__ . '->new($username, \%opts)' if @_ < 2;
-    croak qq($class->new must have a username) unless length($username) > 0;
+    croak qq($class->new must have a username) if length($username) < 1;
     $self->_set_username($username);
 
     # Opts must be a hash ref
-    $opts = {} unless defined $opts;
-    croak q(opts must be a hash ref.) unless ref($opts) eq 'HASH';
+    $opts ||= {};
+    croak q(opts must be a hash ref.) if ref($opts) ne 'HASH';
 
     # Allowed options and default values:
     my %options = (
@@ -63,7 +61,7 @@ sub new {
 
     # Check supplied options
     for (keys %{$opts}) {
-        unless (exists $options{$_}) {
+        if (not exists $options{$_}) {
             carp qq(Ignoring unrecognised option '$_');
             delete $opts->{$_};
         }
@@ -86,7 +84,8 @@ sub new {
 
     # Are we going to login?
     if(defined $options{password} and length $options{password} > 0) {
-       return unless $self->login($options{password});
+       my $is_logged_in = $self->login($options{password});
+       return if not $is_logged_in;
     }
 
     # Set up a dummy entry - allows us to use the generic routines
@@ -126,7 +125,7 @@ sub login {
 
     # Must have a password
     croak 'Usage: $user->login($password)' if @_ < 2;
-    croak q(Missing password) unless length($password) > 0;
+    croak q(Missing password) if length($password) < 1;
 
     my $cli = Net::Google::PicasaWeb::ClientLogin->login(
         $self->_get_username,
@@ -134,7 +133,7 @@ sub login {
         { ua => $self->_get_ua },
     );
 
-    unless (defined $cli) {
+    if (not defined $cli) {
         $self->_set_last_error($Net::Google::PicasaWeb::ClientLogin::LastError);
         return;
     }
@@ -163,14 +162,14 @@ sub describe {
         print qq{  Not logged in.\n};
     }
 
-    return 1;
+    return;
 }
 
 sub is_authenticated {
     my ($self) = @_;
 
     my $cli = $self->_get_cli;
-    return defined $cli and $cli->is_valid();
+    return (defined $cli and $cli->is_valid());
 }
 
 sub get_albums {
@@ -183,11 +182,11 @@ sub add_album {
     my ($self, $opts) = @_;
 
     # Opts must be a hash ref
-    $opts = {} unless defined $opts;
-    croak q(opts must be a hash ref.) unless ref($opts) eq 'HASH';
+    $opts ||= {};
+    croak q(opts must be a hash ref.) if ref($opts) ne 'HASH';
 
     # Pre-requsites
-    croak q(Must be logged in to update) unless $self->is_authenticated();
+    croak q(Must be logged in to update) if not $self->is_authenticated();
 
     # Allowed options and default values:
     my %options = (
@@ -201,7 +200,7 @@ sub add_album {
 
     # Check supplied options
     for (keys %{$opts}) {
-        unless (exists $options{$_}) {
+        if (not exists $options{$_}) {
             carp qq(Ignoring unrecognised option '$_');
             delete $opts->{$_};
         }
@@ -229,8 +228,7 @@ sub add_album {
 
     my $new_entry = $self->_add_entry_to_feed($entry);
 
-    return unless $new_entry;
-    return Net::Google::PicasaWeb::Album->new($new_entry, $self);
+    return $new_entry ? Net::Google::PicasaWeb::Album->new($new_entry, $self) : ();
 }
 
 1; # End of User.pm

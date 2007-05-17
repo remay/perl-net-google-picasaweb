@@ -24,7 +24,7 @@ use XML::Atom::Feed();
 use XML::Atom::Entry();
 use XML::Atom::Util qw( childlist );
 
-$XML::Atom::DefaultVersion = '1.0';
+$XML::Atom::DefaultVersion = '1.0'; ## no critic
 
 my %namespaces = (
 	gphoto     => XML::Atom::Namespace->new('gphoto',

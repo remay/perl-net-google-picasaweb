@@ -1,4 +1,3 @@
-#!perl -wT
 use strict;
 use warnings;
 
@@ -48,7 +47,7 @@ sub format_bytes {
 
 # Want to calculate the blocksize such that(in priority order)
 # (1) min blocksize is 1024 bytes
-# (2) we get no more than 100 blocks
+# (2) we get at least 100 blocks
 # (3) a block doesn't take more than one second
 # filesize in bytes, speed in bits/s
 sub guess_block_size {
@@ -58,23 +57,27 @@ sub guess_block_size {
     croak('Usage: guess_block_size($filesize, $connect_speed)') if @_ < 1;
     croak('filesize cannot be negative') if $filesize < 0;
     # Use default slowish speed, if speed not passed
-    $speed = 40_000 if not defined $speed or $speed == 0;
-    croak('connect_speed cannot be negative') unless $speed > 0;
+    $speed ||= 40_000;
+    croak('connect_speed cannot be negative') if $speed < 0;
 
-	# Initial minimum size
-	my $block_size = 1024;
-
-	# Increase block size, if we can do, allowing
-	# a maximum of 100 bloack
-	$block_size = $filesize / 100 if $filesize / 100 > $block_size;
-
-	# Reduce block size to ensure a block does not
+	# Set number of blocks so that a block doesn't
 	# take more than 1 second
-	$block_size = $speed / 8 if $speed / 8 < $block_size;
+    my $block_size = $speed / 8;
+
+	# Reduce block size, if necessary, so we have
+	# at least of 100 blocks
+    my $max_block_size = $filesize / 100;
+    if($block_size > $max_block_size) {
+        $block_size = $max_block_size;
+    }
+
+	# make the block size at last 1024 bytes
+    if($block_size < 1024) {
+        $block_size = 1024;
+    }
 
 	# Reduce block size to next lower power of 2.
-	my $r = int ( (log $block_size) / (log 2) );
-	$block_size = 2 ** $r;
+	$block_size = 2 ** int ((log $block_size) / (log 2));
 
 	return $block_size;
 }

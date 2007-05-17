@@ -17,14 +17,13 @@ package Net::Google::PicasaWeb::Photo;
 
 our ($VERSION) = q$Revision$ =~ m/(\d+)/xm;
 
-use Net::Google::PicasaWeb::Base();
-use Net::Google::PicasaWeb::Namespaces();
+use Net::Google::PicasaWeb::Base  qw();
 use Net::Google::PicasaWeb::Utils qw(format_bytes);
 
 our @ISA = qw(Net::Google::PicasaWeb::Base);
 
-use Carp qw(croak carp);
-use URI();
+use Carp         qw(croak carp);
+use Scalar::Util qw(blessed);
 
 sub new {
     my ($class, $entry, $album) = @_;
@@ -32,9 +31,9 @@ sub new {
     # Must have an entry and an album object
     croak 'Usage: ' . __PACKAGE__ . '->new($entry, $album)' if @_ < 3;
     croak qq(Parameter 1 to $class->new must be a photo entry object)
-        unless ref $entry and $entry->isa('XML::Atom::Entry');
+        if not ( blessed($entry) and $entry->isa('XML::Atom::Entry') );
     croak qq(Parameter 2 to $class->new must be an album object)
-        unless ref $album and $album->isa('Net::Google::PicasaWeb::Album');
+        if not ( blessed($album) and $album->isa('Net::Google::PicasaWeb::Album') );
 
     my $self = $class->SUPER::new();
 
@@ -67,11 +66,11 @@ sub update_info {
     croak 'Usage: $photo->update_info(\%opts)' if @_ < 1;
 
     # Opts must be a hash ref
-    $opts = {} unless defined $opts;
-    croak q(opts must be a hash ref.) unless ref($opts) eq 'HASH';
+    $opts ||= {};
+    croak q(opts must be a hash ref.) if ref($opts) ne 'HASH';
 
     # Pre-requsites
-    croak qq(Must be logged in to update.) unless $self->is_authenticated();
+    croak qq(Must be logged in to update.) if not $self->is_authenticated();
 
     # Allowed options and default values:
     my %options = (
@@ -82,7 +81,7 @@ sub update_info {
 
     # Check supplied options
     for (keys %{$opts}) {
-        unless (exists $options{$_}) {
+        if (not exists $options{$_}) {
             carp qq(Ignoring unrecognised option '$_');
             delete $opts->{$_};
         }

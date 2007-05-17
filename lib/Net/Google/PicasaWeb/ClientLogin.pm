@@ -70,17 +70,19 @@ sub login {
     my ($class, $user, $pass, $opts) = @_;
 
     my $self = bless {}, $class;
- 
+
     # Must have at least user and password
     croak 'Usage: ' . __PACKAGE__ . '->login($user, $password, \%opts)' if @_ < 3;
-    croak q(Missing user name) unless length($user) > 0;
-    croak q(Missing password)  unless length($pass) > 0;
+    croak q(Missing user name) if length($user) < 1;
+    croak q(Missing password)  if length($pass) < 1;
     # User must have a domain
-    $user .= '@gmail.com' unless $user =~ m/@/xm;
+    if ( $user !~ m/@/xm ) {
+        $user .= '@gmail.com';
+    }
 
     # Opts must be a hash ref
-    $opts = {} unless defined $opts;
-    croak q(opts must be a hash ref.) unless ref($opts) eq 'HASH';
+    $opts ||= {};
+    croak q(opts must be a hash ref.) if ref($opts) ne 'HASH';
 
     # Allowed options and default values:
     my %options = (
@@ -92,7 +94,7 @@ sub login {
 
     # Check supplied options
     for (keys %{$opts}) {
-        unless (exists $options{$_}) {
+        if (not exists $options{$_}) {
             carp qq(Ignoring unrecognised option '$_');
             delete $opts->{$_};
         }
@@ -104,7 +106,7 @@ sub login {
     # Check options.  We don't check service, source, or
     # accountType, as we assume anyone using them has a clue.
     croak q(ua option must be a 'LWP::UserAgent' object (or a subclasss))
-        unless blessed $options{ua} and $options{ua}->isa('LWP::UserAgent');
+        if not (blessed $options{ua} and $options{ua}->isa('LWP::UserAgent'));
 
 
     # setup auth request
@@ -118,8 +120,7 @@ sub login {
         accountType => $options{accountType},
     };
 
-    return unless $self->_login();
-    return $self;
+    return $self->_login() ? $self : ();
 }
 
 ######################################################################
@@ -141,9 +142,9 @@ sub _login {
     my ($self) = @_;
 
     # Ensure we have some credentials
-    die q(No Credentials) unless defined $self->{credentials};
+    die q(No Credentials) if not defined $self->{credentials};
     # And a user agent
-    die q(No UserAgent)   unless defined $self->{ua};
+    die q(No UserAgent)   if not defined $self->{ua};
 
     # Make the Authentication request
     my $response = $self->{ua}->post($ClientLoginUrl, $self->{credentials});
@@ -151,7 +152,7 @@ sub _login {
     # debug?
 
     # Report errors
-    unless($response->is_success()) {
+    if ( not $response->is_success()) {
         $LastError = _generate_error_message($response);
         return;
     }
@@ -159,7 +160,7 @@ sub _login {
     # Extract Auth token from response
     my $c = $response->content();
     my ($auth) = $c =~ m/Auth=(.+)(\s+|$)/xm;
-    die qq(Couldn't extract auth token from '$c') unless defined $auth;
+    die qq(Couldn't extract auth token from '$c') if not defined $auth;
 
     # store auth token
     $self->{auth} = $auth;
@@ -240,7 +241,7 @@ sub _generate_error_message {
         if($content =~ m/Error=(.+)(\s+|$)/xm) {
             my $error = $1;
             my $reason = $reasons{$error};
-            $reason = "Unknown error type '$error'" unless $reason;
+            $reason ||= "Unknown error type '$error'";
 
             return qq(Login Failed: $error: $reason [$message($code)]);
         }
@@ -282,12 +283,12 @@ sub set_auth_headers {
 
     croak q(Usage: $self->set_auth_headers($ua)) if @_ < 1;
 
-    $ua = $self->{ua} unless defined $ua;
+    $ua ||= $self->{ua};
     croak q(ua must be a LWP::UserAgent (or a sub-class))
-        unless blessed $ua and $ua->isa('LWP::UserAgent');
+        if not ( blessed $ua and $ua->isa('LWP::UserAgent') );
 
     # Check the auth token is valid
-    return unless $self->is_valid();
+    return if not $self->is_valid();
 
     # Set the default headers
     $ua->default_headers()->header($self->get_auth_headers());
@@ -316,9 +317,9 @@ sub remove_auth_headers {
 
     croak q(Usage: $self->remove_auth_headers($ua)) if @_ < 1;
 
-    $ua = $self->{ua} unless defined $ua;
+    $ua ||= $self->{ua};
     croak q(ua must be a LWP::UserAgent (or a sub-class))
-        unless blessed $ua and $ua->isa('LWP::UserAgent');
+        if not ( blessed $ua and $ua->isa('LWP::UserAgent') );
 
     # Remove the Authorization header
     $ua->default_headers()->remove_header( 'Authorization' );
@@ -352,7 +353,7 @@ sub get_auth_headers {
     croak q(Usage: $self->get_auth_headers()) if @_ < 1;
 
     # Check the auth token is valid
-    return unless $self->is_valid();
+    return if not $self->is_valid();
 
     return ( Authorization => 'GoogleLogin auth=' . $self->get_auth_token() );
 }
@@ -381,7 +382,7 @@ sub get_auth_token {
     croak q(Usage: $self->get_auth_token()) if @_ < 1;
 
     # Check the auth token is valid
-    return unless $self->is_valid();
+    return if not $self->is_valid();
 
     return $self->{auth};
 }
@@ -430,7 +431,9 @@ sub is_valid {
     my $ttl = $self->{auth_expires} - time;
 
     # (re)login if less than AUTH_RETRY_TIME seconds remains
-    $self->_login() if $ttl < AUTH_RETRY_TIME;
+    if($ttl < AUTH_RETRY_TIME) {
+        $self->_login();
+    }
 
     # re-calculate ttl (we should have a new auth_expires
     # time if (re)login succeeded

@@ -75,7 +75,7 @@ sub _get_relation {
         return $self if $self->isa("Net::Google::PicasaWeb::$type");
 
         my $parent = $self->_get_parent;
-        die q(Can't find a User) unless defined $parent;
+        die q(Can't find a User) if not defined $parent;
 
         $self = $parent;
     }
@@ -87,7 +87,7 @@ sub _get_relation {
 
 sub _get_user  { return $_[0]->_get_relation('User'); }
 sub _set_user  { return $_[0]->_set_parent($_[1]); }
-sub _get_album { return $_[0]->_get_relation("Album"); }
+sub _get_album { return $_[0]->_get_relation('Album'); }
 sub _set_album { return $_[0]->_set_parent($_[1]); }
 
 sub _get_ua {
@@ -98,7 +98,7 @@ sub _get_ua {
         return $ua if defined $ua;
 
         my $parent = $self->_get_parent;
-        die q(Can't find a User Agent) unless defined $parent;
+        die q(Can't find a User Agent) if not defined $parent;
 
         $self = $parent;
     }
@@ -115,7 +115,7 @@ sub _get_uri_from {
 
     # Check type:
     my $rel_type = $typemap->{$type};
-    croak qq(Unrecognised type '$type') unless defined $rel_type;
+    croak qq(Unrecognised type '$type') if not defined $rel_type;
 
     for my $link ($from->link) {
         return URI->new($link->href) if $link->rel eq $rel_type;
@@ -157,7 +157,7 @@ sub _get_feed {
     my ($self) = @_;
 
     # If we haven't got the feed, then get it
-    unless (defined $self->{feed}) {
+    if (not defined $self->{feed}) {
 
         # Find the User Agent:
         my $ua = $self->_get_ua;
@@ -258,7 +258,9 @@ sub _update_entry {
     $self->_set_entry($new_entry);
 
     my $parent = $self->_get_parent();
-    $parent->_invalidate_feed if $parent;
+    if($parent) {
+        $parent->_invalidate_feed;
+    }
     return $self;
 }
 
@@ -286,7 +288,9 @@ sub _delete_entry {
     }
 
     my $parent = $self->_get_parent();
-    $parent->_invalidate_feed if $parent;
+    if($parent) {
+        $parent->_invalidate_feed;
+    }
 
     return 1;
 }
