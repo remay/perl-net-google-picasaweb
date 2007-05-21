@@ -1,0 +1,6 @@
+# Perl::Tidy RC file for Net::Google::PicasaWeb
+# $Id$
+
+-pbp   # All "Perl Best Practice" recommendations
+-nst   # Create a new file rather than printing to STDOUT
+
