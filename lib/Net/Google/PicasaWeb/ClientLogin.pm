@@ -20,19 +20,19 @@ package Net::Google::PicasaWeb::ClientLogin;
 
 our ($VERSION) = q$Revision$ =~ m/(\d+)/xm;
 
-use Carp           qw(carp croak);
+use Carp qw(carp croak);
 use LWP::UserAgent qw();
-use Scalar::Util   qw(blessed);
-use Exporter       qw(import);
+use Scalar::Util qw(blessed);
+use Exporter qw(import);
 
 our @EXPORT_OK = qw($LastError $ClientLoginUrl);
 
-our $LastError = q{};
+our $LastError      = q{};
 our $ClientLoginUrl = 'https://www.google.com/accounts/ClientLogin';
 
-sub APP_NAME()         { 'Perl-' . __PACKAGE__ . "-$VERSION" }
-sub AUTH_VALID_TIME()  { 12*60*60 } # 12 hours in seconds
-sub AUTH_RETRY_TIME()  {  4*60*60 } # 4 hour in seconds
+sub APP_NAME() { 'Perl-' . __PACKAGE__ . "-$VERSION" }
+sub AUTH_VALID_TIME() { 12 * 60 * 60 }    # 12 hours in seconds
+sub AUTH_RETRY_TIME() { 4 * 60 * 60 }     # 4 hour in seconds
 
 ######################################################################
 # login() - PUBLIC - Constructor method
@@ -67,14 +67,16 @@ sub AUTH_RETRY_TIME()  {  4*60*60 } # 4 hour in seconds
 # an error message identifying the failure.
 ######################################################################
 sub login {
-    my ($class, $user, $pass, $opts) = @_;
+    my ( $class, $user, $pass, $opts ) = @_;
 
     my $self = bless {}, $class;
 
     # Must have at least user and password
-    croak 'Usage: ' . __PACKAGE__ . '->login($user, $password, \%opts)' if @_ < 3;
+    croak 'Usage: ' . __PACKAGE__ . '->login($user, $password, \%opts)'
+        if @_ < 3;
     croak q(Missing user name) if length($user) < 1;
     croak q(Missing password)  if length($pass) < 1;
+
     # User must have a domain
     if ( $user !~ m/@/xm ) {
         $user .= '@gmail.com';
@@ -93,8 +95,8 @@ sub login {
     );
 
     # Check supplied options
-    for (keys %{$opts}) {
-        if (not exists $options{$_}) {
+    for ( keys %{$opts} ) {
+        if ( not exists $options{$_} ) {
             carp qq(Ignoring unrecognised option '$_');
             delete $opts->{$_};
         }
@@ -106,11 +108,12 @@ sub login {
     # Check options.  We don't check service, source, or
     # accountType, as we assume anyone using them has a clue.
     croak q(ua option must be a 'LWP::UserAgent' object (or a subclasss))
-        if not (blessed $options{ua} and $options{ua}->isa('LWP::UserAgent'));
-
+        if
+        not( blessed $options{ua} and $options{ua}->isa('LWP::UserAgent') );
 
     # setup auth request
     $self->{ua} = $options{ua};
+
     # Store login credentials
     $self->{credentials} = {
         Email       => $user,
@@ -143,16 +146,18 @@ sub _login {
 
     # Ensure we have some credentials
     die q(No Credentials) if not defined $self->{credentials};
+
     # And a user agent
-    die q(No UserAgent)   if not defined $self->{ua};
+    die q(No UserAgent) if not defined $self->{ua};
 
     # Make the Authentication request
-    my $response = $self->{ua}->post($ClientLoginUrl, $self->{credentials});
+    my $response = $self->{ua}->post( $ClientLoginUrl, $self->{credentials} );
+
     # XXX perhaps $self->{last_response} = $response; would be useful for
     # debug?
 
     # Report errors
-    if ( not $response->is_success()) {
+    if ( not $response->is_success() ) {
         $LastError = _generate_error_message($response);
         return;
     }
@@ -164,6 +169,7 @@ sub _login {
 
     # store auth token
     $self->{auth} = $auth;
+
     # Store the time that this authentication will expire
     $self->{auth_expires} = time + AUTH_VALID_TIME;
 
@@ -197,64 +203,63 @@ sub _generate_error_message {
     # provided in the ClientLogin API documentation.
     my %reasons = (
         BadAuthentication =>
-        'The login request used a username or password that is not recognized.',
+            'The login request used a username or password that is not recognized.',
 
         NotVerified =>
-        'The account email address has not been verified. The user will need ' .
-        'to access their Google account directly to resolve the issue before ' .
-        'logging in using this non-Google application.',
+            'The account email address has not been verified. The user will need '
+            . 'to access their Google account directly to resolve the issue before '
+            . 'logging in using this non-Google application.',
 
         TermsNotAgreed =>
-        'The user has not agreed to terms. The user will need to access their ' .
-        'Google account directly to resolve the issue before logging in using ' .
-        'this non-Google application.',
+            'The user has not agreed to terms. The user will need to access their '
+            . 'Google account directly to resolve the issue before logging in using '
+            . 'this non-Google application.',
 
-        CaptchaRequired => 'A CAPTCHA is required. Please visit ' .
-        'https://www.google.com/accounts/DisplayUnlockCaptcha ' .
-        'to unlock the account before trying to log in again.',
+        CaptchaRequired => 'A CAPTCHA is required. Please visit '
+            . 'https://www.google.com/accounts/DisplayUnlockCaptcha '
+            . 'to unlock the account before trying to log in again.',
 
         Unknown =>
-        'The error is unknown or unspecified; the request contained invalid ' .
-        'input or was malformed.',
+            'The error is unknown or unspecified; the request contained invalid '
+            . 'input or was malformed.',
 
-        AccountDeleted =>
-        'The user account has been deleted.',
+        AccountDeleted => 'The user account has been deleted.',
 
-        AccountDisabled =>
-        'The user account has been disabled.',
+        AccountDisabled => 'The user account has been disabled.',
 
         ServiceDisabled =>
-        'The user\'s access to this service has been disabled. (The user ' .
-        'account may still be valid.)',
+            'The user\'s access to this service has been disabled. (The user '
+            . 'account may still be valid.)',
 
         ServiceUnavailable =>
-        'The service is not available; try again later.',
+            'The service is not available; try again later.',
     );
 
     my $code = $response->code();
 
     # Documented errors
-    if( $code == 403 ) {
+    if ( $code == 403 ) {
         my $message = $response->message();
         my $content = $response->content();
 
-        if($content =~ m/Error=(.+)(\s+|$)/xm) {
-            my $error = $1;
+        if ( $content =~ m/Error=(.+)(\s+|$)/xm ) {
+            my $error  = $1;
             my $reason = $reasons{$error};
             $reason ||= "Unknown error type '$error'";
 
             return qq(Login Failed: $error: $reason [$message($code)]);
         }
+
         # Fall-through for any message that doesn't match what we
         # expected
     }
 
     # Unknown errors
-    return qq(Login Failed for an unknown reason.  This is the response\n) .
-           qq(received from the ClientLogin server:\n) .
-           qq(-- Response Starts --\n) .
-           $response->as_string() .
-           qq(-- Response Ends --\n);
+    return qq(Login Failed for an unknown reason.  This is the response\n)
+        . qq(received from the ClientLogin server:\n)
+        . qq(-- Response Starts --\n)
+        . $response->as_string()
+        . qq(-- Response Ends --\n);
 }
 
 ######################################################################
@@ -279,19 +284,19 @@ sub _generate_error_message {
 # fail to obtain a new one.
 ######################################################################
 sub set_auth_headers {
-    my ($self, $ua) = @_;
+    my ( $self, $ua ) = @_;
 
     croak q(Usage: $self->set_auth_headers($ua)) if @_ < 1;
 
     $ua ||= $self->{ua};
     croak q(ua must be a LWP::UserAgent (or a sub-class))
-        if not ( blessed $ua and $ua->isa('LWP::UserAgent') );
+        if not( blessed $ua and $ua->isa('LWP::UserAgent') );
 
     # Check the auth token is valid
     return if not $self->is_valid();
 
     # Set the default headers
-    $ua->default_headers()->header($self->get_auth_headers());
+    $ua->default_headers()->header( $self->get_auth_headers() );
 
     return 1;
 }
@@ -313,16 +318,16 @@ sub set_auth_headers {
 # Returns a true value.
 ######################################################################
 sub remove_auth_headers {
-    my ($self, $ua) = @_;
+    my ( $self, $ua ) = @_;
 
     croak q(Usage: $self->remove_auth_headers($ua)) if @_ < 1;
 
     $ua ||= $self->{ua};
     croak q(ua must be a LWP::UserAgent (or a sub-class))
-        if not ( blessed $ua and $ua->isa('LWP::UserAgent') );
+        if not( blessed $ua and $ua->isa('LWP::UserAgent') );
 
     # Remove the Authorization header
-    $ua->default_headers()->remove_header( 'Authorization' );
+    $ua->default_headers()->remove_header('Authorization');
 
     return 1;
 }
@@ -406,7 +411,7 @@ sub get_auth_token {
 # any long-running process always has a valid token.
 #
 # If you are using a User Agent that was not passed to the constructor,
-# then record the Time-To-Live (TTL) returned by this call, and on 
+# then record the Time-To-Live (TTL) returned by this call, and on
 # subsequent calls if the TTL increases then obtain the new Auth
 # token or Authorization header.
 #
@@ -427,11 +432,11 @@ sub is_valid {
     my ($self) = @_;
 
     croak q(Usage: $self->is_valid()) if @_ < 1;
-    
+
     my $ttl = $self->{auth_expires} - time;
 
     # (re)login if less than AUTH_RETRY_TIME seconds remains
-    if($ttl < AUTH_RETRY_TIME) {
+    if ( $ttl < AUTH_RETRY_TIME ) {
         $self->_login();
     }
 
@@ -440,6 +445,7 @@ sub is_valid {
     $ttl = $self->{auth_expires} - time;
 
     if ( $ttl < 0 ) {
+
         # We have expired, and failed to re-login
         return 0;
     }
@@ -447,7 +453,7 @@ sub is_valid {
     return $ttl;
 }
 
-1; # End of ClientLogin.pm
+1;    # End of ClientLogin.pm
 __END__
 
 =pod

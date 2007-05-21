@@ -17,23 +17,24 @@ package Net::Google::PicasaWeb::Photo;
 
 our ($VERSION) = q$Revision$ =~ m/(\d+)/xm;
 
-use Net::Google::PicasaWeb::Base  qw();
+use Net::Google::PicasaWeb::Base qw();
 use Net::Google::PicasaWeb::Utils qw(format_bytes);
 
 our @ISA = qw(Net::Google::PicasaWeb::Base);
 
-use Carp         qw(croak carp);
+use Carp qw(croak carp);
 use Scalar::Util qw(blessed);
 
 sub new {
-    my ($class, $entry, $album) = @_;
+    my ( $class, $entry, $album ) = @_;
 
     # Must have an entry and an album object
     croak 'Usage: ' . __PACKAGE__ . '->new($entry, $album)' if @_ < 3;
     croak qq(Parameter 1 to $class->new must be a photo entry object)
-        if not ( blessed($entry) and $entry->isa('XML::Atom::Entry') );
+        if not( blessed($entry) and $entry->isa('XML::Atom::Entry') );
     croak qq(Parameter 2 to $class->new must be an album object)
-        if not ( blessed($album) and $album->isa('Net::Google::PicasaWeb::Album') );
+        if not( blessed($album)
+        and $album->isa('Net::Google::PicasaWeb::Album') );
 
     my $self = $class->SUPER::new();
 
@@ -55,13 +56,13 @@ sub describe {
     my ($self) = @_;
 
     print $self->title, "\t[", $self->summary, '] ', $self->width, 'x',
-    $self->height, q{ }, format_bytes($self->size), "\n";
+        $self->height, q{ }, format_bytes( $self->size ), "\n";
 
     return 1;
 }
 
 sub update_info {
-    my ($self, $opts) = @_;
+    my ( $self, $opts ) = @_;
 
     croak 'Usage: $photo->update_info(\%opts)' if @_ < 1;
 
@@ -80,8 +81,8 @@ sub update_info {
     );
 
     # Check supplied options
-    for (keys %{$opts}) {
-        if (not exists $options{$_}) {
+    for ( keys %{$opts} ) {
+        if ( not exists $options{$_} ) {
             carp qq(Ignoring unrecognised option '$_');
             delete $opts->{$_};
         }
@@ -92,14 +93,14 @@ sub update_info {
 
     # Create <entry> for photo
     my $entry = XML::Atom::PicasaEntry->new();
-    $entry->title($options{title});
-    $entry->summary($options{summary});
-        my $media_group = XML::Atom::MediaGroup->new();
-        $media_group->keywords($options{keywords});
+    $entry->title( $options{title} );
+    $entry->summary( $options{summary} );
+    my $media_group = XML::Atom::MediaGroup->new();
+    $media_group->keywords( $options{keywords} );
     $entry->group($media_group);
-        my $category = XML::Atom::Category->new();
-        $category->scheme('http://schemas.google.com/g/2005#kind');
-        $category->term('http://schemas.google.com/photos/2007#photo');
+    my $category = XML::Atom::Category->new();
+    $category->scheme('http://schemas.google.com/g/2005#kind');
+    $category->term('http://schemas.google.com/photos/2007#photo');
     $entry->category($category);
 
     return $self->_update_entry($entry);
@@ -121,7 +122,7 @@ sub add_comment {
     croak q(Not yet implemented);
 }
 
-1; # End of Photo.pm
+1;    # End of Photo.pm
 __END__
 
 =pod

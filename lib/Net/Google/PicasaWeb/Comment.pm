@@ -17,23 +17,24 @@ package Net::Google::PicasaWeb::Comment;
 
 our ($VERSION) = q$Revision$ =~ /(\d+)/xm;
 
-use Net::Google::PicasaWeb::Base       qw();
+use Net::Google::PicasaWeb::Base qw();
 use Net::Google::PicasaWeb::Namespaces qw();
 
 our @ISA = qw(Net::Google::PicasaWeb::Base);
 
-use Carp         qw(croak carp);
+use Carp qw(croak carp);
 use Scalar::Util qw(blessed);
 
 sub new {
-    my ($class, $entry, $photo) = @_;
+    my ( $class, $entry, $photo ) = @_;
 
     # Must have an entry and an album object
     croak 'Usage: ' . __PACKAGE__ . '->new($entry, $photo)' if @_ < 3;
     croak qq(Parameter 1 to $class->new must be a comment entry object)
-        if not ( bessed($entry) and $entry->isa('XML::Atom::Entry') );
+        if not( bessed($entry) and $entry->isa('XML::Atom::Entry') );
     croak qq(Parameter 2 to $class->new must be a photo object)
-        if not ( blessed($photo) and $photo->isa('Net::Google::PicasaWeb::Photo') );
+        if not( blessed($photo)
+        and $photo->isa('Net::Google::PicasaWeb::Photo') );
 
     my $self = $class->SUPER::new();
 
@@ -43,9 +44,9 @@ sub new {
     return $self;
 }
 
-sub title    { return $_[0]->_get_entry->title; }
-sub summary  { return $_[0]->_get_entry->summary; }
-sub id       { return $_[0]->_get_entry->gphoto->id; }
+sub title   { return $_[0]->_get_entry->title; }
+sub summary { return $_[0]->_get_entry->summary; }
+sub id      { return $_[0]->_get_entry->gphoto->id; }
 
 sub describe {
     my ($self) = @_;
@@ -56,9 +57,9 @@ sub describe {
 }
 
 sub update {
-    my ($self, $opts) = @_;
+    my ( $self, $opts ) = @_;
 
-	# XXX
+    # XXX
     croak q(Not yet implemented);
 
     croak 'Usage: $photo->update_info(\%opts)' if @_ < 1;
@@ -72,13 +73,13 @@ sub update {
 
     # Allowed options and default values:
     my %options = (
-        title    => $self->title,
-        summary  => $self->summary,
+        title   => $self->title,
+        summary => $self->summary,
     );
 
     # Check supplied options
-    for (keys %{$opts}) {
-        if (not exists $options{$_}) {
+    for ( keys %{$opts} ) {
+        if ( not exists $options{$_} ) {
             carp qq(Ignoring unrecognised option '$_');
             delete $opts->{$_};
         }
@@ -89,11 +90,11 @@ sub update {
 
     # Create <entry> for comment
     my $entry = XML::Atom::PicasaEntry->new();
-    $entry->title($options{title});
-    $entry->summary($options{summary});
-	my $category = XML::Atom::Category->new();
-        $category->scheme('http://schemas.google.com/g/2005#kind');
-        $category->term('http://schemas.google.com/photos/2007#comment');
+    $entry->title( $options{title} );
+    $entry->summary( $options{summary} );
+    my $category = XML::Atom::Category->new();
+    $category->scheme('http://schemas.google.com/g/2005#kind');
+    $category->term('http://schemas.google.com/photos/2007#comment');
     $entry->category($category);
 
     return $self->_update_entry($entry);
@@ -103,7 +104,7 @@ sub delete {
     croak q(Not yet implemented);
 }
 
-1; # End of Comment.pm
+1;    # End of Comment.pm
 __END__
 
 =pod

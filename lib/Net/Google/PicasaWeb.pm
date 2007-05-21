@@ -15,12 +15,12 @@ use warnings;
 
 package Net::Google::PicasaWeb;
 
-our $VERSION = '0.00_01';                # for MakeMaker and CPAN
-$VERSION = eval $VERSION ;  ## no critic # for Perl (see perlmodstyle)
+our $VERSION = '0.00_01';    # for MakeMaker and CPAN
+$VERSION = eval $VERSION;    ## no critic # for Perl (see perlmodstyle)
 
 use Net::Google::PicasaWeb::User();
 
-1; # End of PicasaWeb.pm
+1;                           # End of PicasaWeb.pm
 __END__
 
 =head1 NAME

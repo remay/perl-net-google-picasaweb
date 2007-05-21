@@ -34,12 +34,12 @@ my %attributes = (
     ua         => undef,
     last_error => undef,
 
-    cli        => undef,
-    username   => undef,
+    cli      => undef,
+    username => undef,
 );
 
 sub AUTOLOAD {
-    my ($self, $value) = @_;
+    my ( $self, $value ) = @_;
     my $method = $AUTOLOAD;
     $method =~ s/.*:://xm;
 
@@ -48,28 +48,29 @@ sub AUTOLOAD {
 
     # Type:
     my $type;
-    if ($method =~ s/^_(get)_//xm or $method =~ s/^_(set)_//xm) {
+    if ( $method =~ s/^_(get)_//xm or $method =~ s/^_(set)_//xm ) {
         $type = $1;
     }
 
     # Allowed?
-    if ($type and exists $attributes{$method}) {
-        return  $self->{$method}           if $type eq 'get';
-        return ($self->{$method} = $value) if $type eq 'set';
+    if ( $type and exists $attributes{$method} ) {
+        return $self->{$method} if $type eq 'get';
+        return ( $self->{$method} = $value ) if $type eq 'set';
+
         # Don't get here
         die q(Internal Error);
     }
 
-    my ($callpkg, $file, $line) = caller;
-    croak qq(Attempt to AUTOLOAD unknown method '$AUTOLOAD'.\n) .
-          qq(Called from $callpkg ($file, line $line)\n\t);
+    my ( $callpkg, $file, $line ) = caller;
+    croak qq(Attempt to AUTOLOAD unknown method '$AUTOLOAD'.\n)
+        . qq(Called from $callpkg ($file, line $line)\n\t);
     return;
 }
 
-sub new { return bless { %attributes }, $_[0]; }
+sub new { return bless {%attributes}, $_[0]; }
 
 sub _get_relation {
-    my ($self, $type) = @_;
+    my ( $self, $type ) = @_;
 
     while (1) {
         return $self if $self->isa("Net::Google::PicasaWeb::$type");
@@ -86,9 +87,9 @@ sub _get_relation {
 }
 
 sub _get_user  { return $_[0]->_get_relation('User'); }
-sub _set_user  { return $_[0]->_set_parent($_[1]); }
+sub _set_user  { return $_[0]->_set_parent( $_[1] ); }
 sub _get_album { return $_[0]->_get_relation('Album'); }
-sub _set_album { return $_[0]->_set_parent($_[1]); }
+sub _set_album { return $_[0]->_set_parent( $_[1] ); }
 
 sub _get_ua {
     my ($self) = @_;
@@ -111,21 +112,21 @@ sub _get_ua {
 sub is_authenticated { return $_[0]->_get_user->is_authenticated; }
 
 sub _get_uri_from {
-    my ($self, $from, $type, $typemap) = @_;
+    my ( $self, $from, $type, $typemap ) = @_;
 
     # Check type:
     my $rel_type = $typemap->{$type};
     croak qq(Unrecognised type '$type') if not defined $rel_type;
 
-    for my $link ($from->link) {
-        return URI->new($link->href) if $link->rel eq $rel_type;
+    for my $link ( $from->link ) {
+        return URI->new( $link->href ) if $link->rel eq $rel_type;
     }
 
     return;
 }
 
 sub _get_uri_from_feed {
-    my ($self, $type) = @_;
+    my ( $self, $type ) = @_;
 
     # turn type into rel:
     my %typemap = (
@@ -135,11 +136,11 @@ sub _get_uri_from_feed {
         self => 'self',
     );
 
-    return $self->_get_uri_from($self->_get_feed, $type, \%typemap);
+    return $self->_get_uri_from( $self->_get_feed, $type, \%typemap );
 }
 
 sub _get_uri_from_entry {
-    my ($self, $type) = @_;
+    my ( $self, $type ) = @_;
 
     # turn type into rel:
     my %typemap = (
@@ -150,14 +151,14 @@ sub _get_uri_from_entry {
         medit => 'media-edit',
     );
 
-    return $self->_get_uri_from($self->_get_entry, $type, \%typemap);
+    return $self->_get_uri_from( $self->_get_entry, $type, \%typemap );
 }
 
 sub _get_feed {
     my ($self) = @_;
 
     # If we haven't got the feed, then get it
-    if (not defined $self->{feed}) {
+    if ( not defined $self->{feed} ) {
 
         # Find the User Agent:
         my $ua = $self->_get_ua;
@@ -167,16 +168,17 @@ sub _get_feed {
 
         my $response = $ua->get($uri);
 
-        if ( ! $response->is_success() ) {
+        if ( !$response->is_success() ) {
+
             # Failed to get feed
-             die qq(Failed to get feed from '$uri'.  Server said:\n) .
-                 qq(---- Response Starts ----\n) .
-                 $response->as_string() .
-                 qq(----- Response Ends -----\n");
+            die qq(Failed to get feed from '$uri'.  Server said:\n)
+                . qq(---- Response Starts ----\n)
+                . $response->as_string()
+                . qq(----- Response Ends -----\n");
         }
 
         my $atom = $response->content();
-        my $feed = XML::Atom::Feed->new(\$atom) or die 'Bad Feed';
+        my $feed = XML::Atom::Feed->new( \$atom ) or die 'Bad Feed';
         $self->_set_feed($feed);
     }
 
@@ -187,36 +189,33 @@ sub _get_feed {
 sub _invalidate_feed { $_[0]->_set_feed(); return 1; }
 
 sub _add_entry_to_feed {
-    my ($self, $entry) = @_;
+    my ( $self, $entry ) = @_;
 
     my $uri = $self->_get_uri_from_feed('post');
     my $ua  = $self->_get_ua;
     my $xml = $entry->as_xml;
 
     my $req = HTTP::Request->new(
-        'POST',
-        $uri,
-        [
-            Content_Length => length $xml,
+        'POST', $uri,
+        [   Content_Length => length $xml,
             Content_Type   => 'application/atom+xml',
         ],
         $xml,
     );
-        
+
     my $response = $ua->request($req);
 
-    if ( ! $response->is_success() ) {
+    if ( !$response->is_success() ) {
         $self->_set_last_error(
-            qq(Failed to update feed at '$uri'.  Server said:\n) .
-            qq(---- Response Starts ----\n) .
-            $response->as_string() .
-            qq(----- Response Ends -----\n")
-        );
+                  qq(Failed to update feed at '$uri'.  Server said:\n)
+                . qq(---- Response Starts ----\n)
+                . $response->as_string()
+                . qq(----- Response Ends -----\n") );
         return;
     }
 
     my $atom = $response->content();
-    my $new_entry = XML::Atom::Entry->new(\$atom) or die 'Bad Entry';
+    my $new_entry = XML::Atom::Entry->new( \$atom ) or die 'Bad Entry';
 
     $self->_invalidate_feed();
 
@@ -224,78 +223,71 @@ sub _add_entry_to_feed {
 }
 
 sub _update_entry {
-  my ($self, $entry) = @_;
+    my ( $self, $entry ) = @_;
 
     my $uri = $self->_get_uri_from_entry('edit');
     my $ua  = $self->_get_ua;
     my $xml = $entry->as_xml;
 
     my $req = HTTP::Request->new(
-        'PUT',
-        $uri,
-        [
-            Content_Length => length $xml,
+        'PUT', $uri,
+        [   Content_Length => length $xml,
             Content_Type   => 'application/atom+xml',
         ],
         $xml,
     );
-        
+
     my $response = $ua->request($req);
 
-    if ( ! $response->is_success() ) {
+    if ( !$response->is_success() ) {
         $self->_set_last_error(
-            qq(Failed to update entry at '$uri'.  Server said:\n) .
-            qq(---- Response Starts ----\n) .
-            $response->as_string() .
-            qq(----- Response Ends -----\n")
-        );
+                  qq(Failed to update entry at '$uri'.  Server said:\n)
+                . qq(---- Response Starts ----\n)
+                . $response->as_string()
+                . qq(----- Response Ends -----\n") );
         return;
     }
 
     my $atom = $response->content();
-    my $new_entry = XML::Atom::Entry->new(\$atom) or die 'Bad Entry';
+    my $new_entry = XML::Atom::Entry->new( \$atom ) or die 'Bad Entry';
 
     $self->_set_entry($new_entry);
 
     my $parent = $self->_get_parent();
-    if($parent) {
+    if ($parent) {
         $parent->_invalidate_feed;
     }
     return $self;
 }
 
 sub _delete_entry {
-  my ($self) = @_;
+    my ($self) = @_;
 
     my $uri = $self->_get_uri_from_entry('edit');
     my $ua  = $self->_get_ua;
 
-    my $req = HTTP::Request->new(
-        'DELETE',
-        $uri,
-    );
-        
+    my $req = HTTP::Request->new( 'DELETE', $uri, );
+
     my $response = $ua->request($req);
 
-    if ( ! $response->is_success() ) {
+    if ( !$response->is_success() ) {
         $self->_set_last_error(
-            qq(Failed to update entry at '$uri'.  Server said:\n) .
-            qq(---- Response Starts ----\n) .
-            $response->as_string() .
-            qq(----- Response Ends -----\n")
-        );
+                  qq(Failed to update entry at '$uri'.  Server said:\n)
+                . qq(---- Response Starts ----\n)
+                . $response->as_string()
+                . qq(----- Response Ends -----\n") );
         return;
     }
 
     my $parent = $self->_get_parent();
-    if($parent) {
+    if ($parent) {
         $parent->_invalidate_feed;
     }
 
     return 1;
 }
 
-1; # End of Base.pm
+1;    # End of Base.pm
 __END__
 
 =pod

@@ -30,17 +30,17 @@ sub format_bytes {
 
     croak q(Usage: format_bytes($bytes)) if @_ < 1;
 
-    return sprintf '%.3f TB', $n / (1024 * 1024 * 1024 * 1024)
-	if $n >= 1024 * 1024 * 1024 * 1024;
+    return sprintf '%.3f TB', $n / ( 1024 * 1024 * 1024 * 1024 )
+        if $n >= 1024 * 1024 * 1024 * 1024;
 
-    return sprintf '%.3f GB', $n / (1024 * 1024 * 1024)
-	if $n >= 1024 * 1024 * 1024;
+    return sprintf '%.3f GB', $n / ( 1024 * 1024 * 1024 )
+        if $n >= 1024 * 1024 * 1024;
 
-    return sprintf '%.3f MB', $n / (1024 * 1024)
-	if $n >= 1024 * 1024;
-    
+    return sprintf '%.3f MB', $n / ( 1024 * 1024 )
+        if $n >= 1024 * 1024;
+
     return sprintf '%.3f KB', $n / 1024
-	if $n >= 1024;
+        if $n >= 1024;
 
     return "$n bytes";
 }
@@ -51,35 +51,37 @@ sub format_bytes {
 # (3) a block doesn't take more than one second
 # filesize in bytes, speed in bits/s
 sub guess_block_size {
-	my ($filesize, $speed) = @_;
-	# Filesize in bytes, speed in kbits/s
+    my ( $filesize, $speed ) = @_;
+
+    # Filesize in bytes, speed in kbits/s
 
     croak('Usage: guess_block_size($filesize, $connect_speed)') if @_ < 1;
     croak('filesize cannot be negative') if $filesize < 0;
+
     # Use default slowish speed, if speed not passed
     $speed ||= 40_000;
     croak('connect_speed cannot be negative') if $speed < 0;
 
-	# Set number of blocks so that a block doesn't
-	# take more than 1 second
+    # Set number of blocks so that a block doesn't
+    # take more than 1 second
     my $block_size = $speed / 8;
 
-	# Reduce block size, if necessary, so we have
-	# at least of 100 blocks
+    # Reduce block size, if necessary, so we have
+    # at least of 100 blocks
     my $max_block_size = $filesize / 100;
-    if($block_size > $max_block_size) {
+    if ( $block_size > $max_block_size ) {
         $block_size = $max_block_size;
     }
 
-	# make the block size at last 1024 bytes
-    if($block_size < 1024) {
+    # make the block size at last 1024 bytes
+    if ( $block_size < 1024 ) {
         $block_size = 1024;
     }
 
-	# Reduce block size to next lower power of 2.
-	$block_size = 2 ** int ((log $block_size) / (log 2));
+    # Reduce block size to next lower power of 2.
+    $block_size = 2**int( ( log $block_size ) / ( log 2 ) );
 
-	return $block_size;
+    return $block_size;
 }
 
 sub gphoto_timestamp_to_date {
@@ -87,14 +89,14 @@ sub gphoto_timestamp_to_date {
 
     croak q(Usage: gphoto_timestamp_to_date($timestamp)) if @_ < 1;
 
-    my ($mday, $mon, $year) = (gmtime int $timestamp/1000)[3,4,5];
+    my ( $mday, $mon, $year ) = ( gmtime int $timestamp / 1000 )[ 3, 4, 5 ];
     $year += 1900;
-    $mon += 1;
+    $mon  += 1;
 
     return sprintf '%02d-%02d-%4d', $mday, $mon, $year;
 }
 
-1; # End of Utils.pm
+1;    # End of Utils.pm
 __END__
 
 =head1 NAME

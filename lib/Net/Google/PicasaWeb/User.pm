@@ -18,13 +18,13 @@ package Net::Google::PicasaWeb::User;
 our ($VERSION) = q$Revision$ =~ m/(\d+)/xm;
 
 use Net::Google::PicasaWeb::ClientLogin qw();
-use Net::Google::PicasaWeb::Base        qw();
-use Net::Google::PicasaWeb::Album       qw();
-use Net::Google::PicasaWeb::Utils       qw(format_bytes);
+use Net::Google::PicasaWeb::Base qw();
+use Net::Google::PicasaWeb::Album qw();
+use Net::Google::PicasaWeb::Utils qw(format_bytes);
 
 our @ISA = qw(Net::Google::PicasaWeb::Base);
 
-use Carp           qw(croak carp);
+use Carp qw(croak carp);
 use LWP::UserAgent qw();
 
 ######################################################################
@@ -40,7 +40,7 @@ use LWP::UserAgent qw();
 #         on failure.
 ######################################################################
 sub new {
-    my ($class, $username, $opts) = @_;
+    my ( $class, $username, $opts ) = @_;
 
     my $self = $class->SUPER::new();
 
@@ -60,8 +60,8 @@ sub new {
     );
 
     # Check supplied options
-    for (keys %{$opts}) {
-        if (not exists $options{$_}) {
+    for ( keys %{$opts} ) {
+        if ( not exists $options{$_} ) {
             carp qq(Ignoring unrecognised option '$_');
             delete $opts->{$_};
         }
@@ -73,7 +73,7 @@ sub new {
     # Create or use supplied User Agent
     {
         my $ua;
-        if(defined $options{ua} and $options{ua}->isa('LWP::UserAgent')) {
+        if ( defined $options{ua} and $options{ua}->isa('LWP::UserAgent') ) {
             $ua = $options{ua};
         }
         else {
@@ -83,34 +83,38 @@ sub new {
     }
 
     # Are we going to login?
-    if(defined $options{password} and length $options{password} > 0) {
-       my $is_logged_in = $self->login($options{password});
-       return if not $is_logged_in;
+    if ( defined $options{password} and length $options{password} > 0 ) {
+        my $is_logged_in = $self->login( $options{password} );
+        return if not $is_logged_in;
     }
 
     # Set up a dummy entry - allows us to use the generic routines
-    my $dummy = XML::Atom::Entry->new(Version => '1.0');
+    my $dummy = XML::Atom::Entry->new( Version => '1.0' );
 
     my @link_info = (
-        { rel  => 'http://schemas.google.com/g/2005#feed',
-          type => 'application/atom+xml',
-          href => "http://picasaweb.google.com/data/feed/api/user/$username" },
-        { rel  => 'http://schemas.google.com/g/2005#post',
-          type => 'application/atom+xml',
-          href => "http://picasaweb.google.com/data/feed/api/user/$username" },
-        { rel  => 'alternate',
-          type => 'text/html',
-          href => "http://picasaweb.google.com/$username" },
-        { rel  => 'self',
-          type => 'application/atom+xml',
-          href => "http://picasaweb.google.com/data/feed/api/user/$username" },
+        {   rel  => 'http://schemas.google.com/g/2005#feed',
+            type => 'application/atom+xml',
+            href => "http://picasaweb.google.com/data/feed/api/user/$username"
+        },
+        {   rel  => 'http://schemas.google.com/g/2005#post',
+            type => 'application/atom+xml',
+            href => "http://picasaweb.google.com/data/feed/api/user/$username"
+        },
+        {   rel  => 'alternate',
+            type => 'text/html',
+            href => "http://picasaweb.google.com/$username"
+        },
+        {   rel  => 'self',
+            type => 'application/atom+xml',
+            href => "http://picasaweb.google.com/data/feed/api/user/$username"
+        },
     );
 
     for my $link_info (@link_info) {
-        my $link = XML::Atom::Link->new(Version => '1.0');
-        $link->rel($link_info->{rel});
-        $link->type($link_info->{type});
-        $link->href($link_info->{href});
+        my $link = XML::Atom::Link->new( Version => '1.0' );
+        $link->rel( $link_info->{rel} );
+        $link->type( $link_info->{type} );
+        $link->href( $link_info->{href} );
 
         $dummy->add_link($link);
     }
@@ -121,20 +125,20 @@ sub new {
 }
 
 sub login {
-    my ($self, $password) = @_;
+    my ( $self, $password ) = @_;
 
     # Must have a password
     croak 'Usage: $user->login($password)' if @_ < 2;
-    croak q(Missing password) if length($password) < 1;
+    croak q(Missing password)              if length($password) < 1;
 
-    my $cli = Net::Google::PicasaWeb::ClientLogin->login(
-        $self->_get_username,
-        $password,
-        { ua => $self->_get_ua },
-    );
+    my $cli
+        = Net::Google::PicasaWeb::ClientLogin->login( $self->_get_username,
+        $password, { ua => $self->_get_ua },
+        );
 
-    if (not defined $cli) {
-        $self->_set_last_error($Net::Google::PicasaWeb::ClientLogin::LastError);
+    if ( not defined $cli ) {
+        $self->_set_last_error(
+            $Net::Google::PicasaWeb::ClientLogin::LastError);
         return;
     }
 
@@ -152,11 +156,12 @@ sub describe {
 
     print q{User information for user '}, $self->_get_username, qq{'.\n};
 
-    if($self->is_authenticated()) {
+    if ( $self->is_authenticated() ) {
         print qq{  Logged in.\n};
-        print  q{  Using }, format_bytes($self->quotacurrent()), q{ of },
-            format_bytes($self->quotalimit()), qq{.\n};
-        print  q{  Maximum of }, $self->maxPhotosPerAlbum(), qq{ photos per album.\n};
+        print q{  Using }, format_bytes( $self->quotacurrent() ), q{ of },
+            format_bytes( $self->quotalimit() ), qq{.\n};
+        print q{  Maximum of }, $self->maxPhotosPerAlbum(),
+            qq{ photos per album.\n};
     }
     else {
         print qq{  Not logged in.\n};
@@ -169,17 +174,19 @@ sub is_authenticated {
     my ($self) = @_;
 
     my $cli = $self->_get_cli;
-    return (defined $cli and $cli->is_valid());
+    return ( defined $cli and $cli->is_valid() );
 }
 
 sub get_albums {
     my ($self) = @_;
 
-    return map { Net::Google::PicasaWeb::Album->new($_, $self); } $self->_get_feed->entries;
+    return
+        map { Net::Google::PicasaWeb::Album->new( $_, $self ); }
+        $self->_get_feed->entries;
 }
 
 sub add_album {
-    my ($self, $opts) = @_;
+    my ( $self, $opts ) = @_;
 
     # Opts must be a hash ref
     $opts ||= {};
@@ -195,12 +202,12 @@ sub add_album {
         description => undef,
         location    => undef,
         private     => 0,
-        
+
     );
 
     # Check supplied options
-    for (keys %{$opts}) {
-        if (not exists $options{$_}) {
+    for ( keys %{$opts} ) {
+        if ( not exists $options{$_} ) {
             carp qq(Ignoring unrecognised option '$_');
             delete $opts->{$_};
         }
@@ -213,25 +220,27 @@ sub add_album {
 
     # Create <entry> for photo
     my $entry = XML::Atom::PicasaEntry->new();
-    $entry->title($options{title});
-    $entry->summary($options{description});
-		my $gphoto = XML::Atom::Gphoto->new();
-        $gphoto->location($options{location});
-        $gphoto->access($options{private} ? 'private' : 'public');
-        $gphoto->commentingEnabled('true');
-        $gphoto->timestamp($options{timestamp} * 1000);
+    $entry->title( $options{title} );
+    $entry->summary( $options{description} );
+    my $gphoto = XML::Atom::Gphoto->new();
+    $gphoto->location( $options{location} );
+    $gphoto->access( $options{private} ? 'private' : 'public' );
+    $gphoto->commentingEnabled('true');
+    $gphoto->timestamp( $options{timestamp} * 1000 );
     $entry->gphoto($gphoto);
-		my $category = XML::Atom::Category->new();
-        $category->scheme('http://schemas.google.com/g/2005#kind');
-        $category->term('http://schemas.google.com/photos/2007#album');
+    my $category = XML::Atom::Category->new();
+    $category->scheme('http://schemas.google.com/g/2005#kind');
+    $category->term('http://schemas.google.com/photos/2007#album');
     $entry->category($category);
 
     my $new_entry = $self->_add_entry_to_feed($entry);
 
-    return $new_entry ? Net::Google::PicasaWeb::Album->new($new_entry, $self) : ();
+    return $new_entry
+        ? Net::Google::PicasaWeb::Album->new( $new_entry, $self )
+        : ();
 }
 
-1; # End of User.pm
+1;    # End of User.pm
 __END__
 
 =pod

@@ -24,34 +24,36 @@ use XML::Atom::Feed();
 use XML::Atom::Entry();
 use XML::Atom::Util qw( childlist );
 
-$XML::Atom::DefaultVersion = '1.0'; ## no critic
+$XML::Atom::DefaultVersion = '1.0';    ## no critic
 
 my %namespaces = (
-	gphoto     => XML::Atom::Namespace->new('gphoto',
-                    'http://schemas.google.com/photos/2007'),
-	media      => XML::Atom::Namespace->new('media',
-                    'http://search.yahoo.com/mrss/'),
-	exif       => XML::Atom::Namespace->new('exif',
-                    'http://schemas.google.com/photos/exif/2007' ),
+    gphoto => XML::Atom::Namespace->new(
+        'gphoto', 'http://schemas.google.com/photos/2007'
+    ),
+    media =>
+        XML::Atom::Namespace->new( 'media', 'http://search.yahoo.com/mrss/' ),
+    exif => XML::Atom::Namespace->new(
+        'exif', 'http://schemas.google.com/photos/exif/2007'
+    ),
 );
 
-my %namespace_lookup = map
-                       { $namespaces{$_}->{uri} => $namespaces{$_} }
-                       keys %namespaces;
+my %namespace_lookup = map { $namespaces{$_}->{uri} => $namespaces{$_} }
+    keys %namespaces;
 
 sub mk_object_accessor {
     my $class = shift;
-    my($mkclass, $name, $ext_class) = @_;
-    no strict 'refs';   ## no critic
-    (my $meth = $name) =~ tr/\-/_/;
+    my ( $mkclass, $name, $ext_class ) = @_;
+    no strict 'refs';    ## no critic
+    ( my $meth = $name ) =~ tr/\-/_/;
     *{"${mkclass}::$meth"} = sub {
         my $obj = shift;
         my $ns_uri = $ext_class->element_ns || $obj->ns;
         if (@_) {
             my $ns = $namespace_lookup{$ns_uri} || $ns_uri;
-            return $obj->set($ns, $name, $_[0]);
-        } else {
-            return $obj->get_object($ns_uri, $name, $ext_class);
+            return $obj->set( $ns, $name, $_[0] );
+        }
+        else {
+            return $obj->get_object( $ns_uri, $name, $ext_class );
         }
     };
 
@@ -60,18 +62,19 @@ sub mk_object_accessor {
 
 sub mk_elem_accessors {
     my $class = shift;
-    my(@list) = @_;
-    no strict 'refs';   ## no critic
+    my (@list) = @_;
+    no strict 'refs';    ## no critic
     for my $elem (@list) {
-        (my $meth = $elem) =~ tr/\-/_/;
+        ( my $meth = $elem ) =~ tr/\-/_/;
         *{"${class}::$meth"} = sub {
-            my $obj = shift;
-			my $ns_uri = $obj->ns;
+            my $obj    = shift;
+            my $ns_uri = $obj->ns;
             if (@_) {
                 my $ns = $namespace_lookup{$ns_uri} || $ns_uri;
-                return $obj->set($ns, $elem, $_[0]);
-            } else {
-                return $obj->get($ns_uri, $elem);
+                return $obj->set( $ns, $elem, $_[0] );
+            }
+            else {
+                return $obj->get( $ns_uri, $elem );
             }
         };
     }
@@ -81,17 +84,18 @@ sub mk_elem_accessors {
 
 sub mk_object_list_accessor {
     my $class = shift;
-    my($name, $ext_class, $moniker) = @_;
+    my ( $name, $ext_class, $moniker ) = @_;
 
-    no strict 'refs';   ## no critic
+    no strict 'refs';    ## no critic
 
     *{"$class\::$name"} = sub {
         my $obj = shift;
 
         my $ns_uri = $ext_class->element_ns || $obj->ns;
         if (@_) {
+
             # setter: clear existent elements first
-            my @elem = childlist($obj->elem, $ns_uri, $name);
+            my @elem = childlist( $obj->elem, $ns_uri, $name );
             for my $el (@elem) {
                 $obj->elem->removeChild($el);
             }
@@ -101,9 +105,11 @@ sub mk_object_list_accessor {
             for my $add_elem (@_) {
                 $obj->$adder($add_elem);
             }
-        } else {
+        }
+        else {
+
             # getter: just call get_object which is a context aware
-            return $obj->get_object($ns_uri, $name, $ext_class);
+            return $obj->get_object( $ns_uri, $name, $ext_class );
         }
     };
 
@@ -113,7 +119,8 @@ sub mk_object_list_accessor {
             my $obj = shift;
             if (@_) {
                 return $obj->$name(@_);
-            } else {
+            }
+            else {
                 my @obj = $obj->$name;
                 return wantarray ? @obj : \@obj;
             }
@@ -123,18 +130,21 @@ sub mk_object_list_accessor {
     # add_$name
     *{"$class\::add_$name"} = sub {
         my $obj = shift;
-        my($stuff) = @_;
+        my ($stuff) = @_;
 
-        my $ns_uri = $ext_class->element_ns || $obj->ns;
-		my $ns = $namespace_lookup{$ns_uri} || $ns_uri;
-        my $elem = ref $stuff eq $ext_class ?
-            $stuff->elem : create_element($ns, $name);
+        my $ns_uri = $ext_class->element_ns     || $obj->ns;
+        my $ns     = $namespace_lookup{$ns_uri} || $ns_uri;
+        my $elem =
+            ref $stuff eq $ext_class
+            ? $stuff->elem
+            : create_element( $ns, $name );
         $obj->elem->appendChild($elem);
 
-        if (ref($stuff) eq 'HASH') {
+        if ( ref($stuff) eq 'HASH' ) {
             for my $k ( $ext_class->attributes ) {
                 defined $stuff->{$k} or next;
-                $elem->setAttribute($k, $stuff->{$k});   # TODO: should this be setAttributeNS?
+                $elem->setAttribute( $k, $stuff->{$k} )
+                    ;    # TODO: should this be setAttributeNS?
             }
         }
     };
@@ -150,18 +160,15 @@ package XML::Atom::PicasaEntry;
 our @ISA = qw( XML::Atom::Entry );
 
 sub init {
-	my $obj = shift;
-	$obj->SUPER::init(@_);
+    my $obj = shift;
+    $obj->SUPER::init(@_);
 
-	for (keys %namespaces) {
-		$obj->elem->setNamespace(
-            $namespaces{$_}->{uri},
-            $namespaces{$_}->{prefix},
-            0
-        );
-	}
+    for ( keys %namespaces ) {
+        $obj->elem->setNamespace( $namespaces{$_}->{uri},
+            $namespaces{$_}->{prefix}, 0 );
+    }
 
-	return $obj;
+    return $obj;
 }
 
 package XML::Atom::Gphoto;
@@ -170,12 +177,14 @@ our @ISA = qw( Net::Google::PicasaWeb::Namespaces );
 
 use XML::Atom::Util qw(childlist);
 
-__PACKAGE__->mk_elem_accessors(qw(
-    albumid commentCount commentingEnabled id maxPhotosPerAlbum
-    nickname quotacurrent quotalimit thumbnail user access bytesUsed
-    location name numphotos numphotosremaining checksum client height
-    position rotation size timestamp version width photoid weight
-));
+__PACKAGE__->mk_elem_accessors(
+    qw(
+        albumid commentCount commentingEnabled id maxPhotosPerAlbum
+        nickname quotacurrent quotalimit thumbnail user access bytesUsed
+        location name numphotos numphotosremaining checksum client height
+        position rotation size timestamp version width photoid weight
+        )
+);
 
 for my $class (qw( XML::Atom::Feed XML::Atom::Entry )) {
     __PACKAGE__->mk_object_accessor( $class, gphoto => __PACKAGE__ );
@@ -186,35 +195,37 @@ sub element_ns   { return $namespaces{gphoto}->{uri} }
 
 sub mk_object_accessor {
     my $class = shift;
-    my($mkclass, $name, $ext_class) = @_;
-    no strict 'refs';   ## no critic
-    (my $meth = $name) =~ tr/\-/_/;
+    my ( $mkclass, $name, $ext_class ) = @_;
+    no strict 'refs';    ## no critic
+    ( my $meth = $name ) =~ tr/\-/_/;
     *{"${mkclass}::$meth"} = sub {
-        my $obj = shift;
+        my $obj    = shift;
         my $ns_uri = $ext_class->element_ns || $obj->ns;
-		my $ns = $namespace_lookup{$ns_uri} || $ns_uri;
+        my $ns     = $namespace_lookup{$ns_uri} || $ns_uri;
         if (@_) {
-			# Setter: (1) remove all gphoto namespace items
-			# (2) add the new ones
-			my @elem = childlist($obj->elem, $ns_uri, q{*});
+
+            # Setter: (1) remove all gphoto namespace items
+            # (2) add the new ones
+            my @elem = childlist( $obj->elem, $ns_uri, q{*} );
             for my $el (@elem) {
                 $obj->elem->removeChild($el);
             }
 
-			@elem = childlist($_[0]->elem, $ns_uri, q{*});
-			for my $el (@elem) {
-				$obj->elem->appendChild($el);
-			}
+            @elem = childlist( $_[0]->elem, $ns_uri, q{*} );
+            for my $el (@elem) {
+                $obj->elem->appendChild($el);
+            }
 
             return $obj;
-        } else {
-			my @elem = childlist($obj->elem, $ns_uri, q{*});
-			my $new_obj = $ext_class->new();
-			for my $el (@elem) {
-				my $name = $el->localname;
-				my $value = $el->textContent;
-				$new_obj->$name($value);
-			}
+        }
+        else {
+            my @elem = childlist( $obj->elem, $ns_uri, q{*} );
+            my $new_obj = $ext_class->new();
+            for my $el (@elem) {
+                my $name  = $el->localname;
+                my $value = $el->textContent;
+                $new_obj->$name($value);
+            }
             return $new_obj;
         }
     };
@@ -226,15 +237,19 @@ package XML::Atom::MediaGroup;
 
 our @ISA = qw( Net::Google::PicasaWeb::Namespaces );
 
-__PACKAGE__->mk_elem_accessors(qw(
-    credit description keywords title
-));
+__PACKAGE__->mk_elem_accessors(
+    qw(
+        credit description keywords title
+        )
+);
 
 __PACKAGE__->mk_object_list_accessor(
-    'content' => 'XML::Atom::MediaGroup::Content', 'contents'
+    'content' => 'XML::Atom::MediaGroup::Content',
+    'contents'
 );
 __PACKAGE__->mk_object_list_accessor(
-    'thumbnail' => 'XML::Atom::MediaGroup::Thumbnail', 'thumbnails'
+    'thumbnail' => 'XML::Atom::MediaGroup::Thumbnail',
+    'thumbnails'
 );
 
 for my $class (qw( XML::Atom::Feed XML::Atom::Entry )) {
@@ -248,9 +263,11 @@ package XML::Atom::MediaGroup::Content;
 
 our @ISA = qw( Net::Google::PicasaWeb::Namespaces );
 
-__PACKAGE__->mk_attr_accessors(qw(
-    url type medium height width filesize
-));
+__PACKAGE__->mk_attr_accessors(
+    qw(
+        url type medium height width filesize
+        )
+);
 
 sub element_name { return 'content' }
 sub element_ns   { return $namespaces{media}->{uri} }
@@ -268,9 +285,11 @@ package XML::Atom::Exiftags;
 
 our @ISA = qw( Net::Google::PicasaWeb::Namespaces );
 
-__PACKAGE__->mk_elem_accessors(qw(
-    fstop make model distance exposure flash focallength iso time
-));
+__PACKAGE__->mk_elem_accessors(
+    qw(
+        fstop make model distance exposure flash focallength iso time
+        )
+);
 
 for my $class (qw( XML::Atom::Feed XML::Atom::Entry )) {
     __PACKAGE__->mk_object_accessor( $class, tags => __PACKAGE__ );
@@ -279,7 +298,7 @@ for my $class (qw( XML::Atom::Feed XML::Atom::Entry )) {
 sub element_name { return 'tags' }
 sub element_ns   { return $namespaces{exif}->{uri} }
 
-1; # End of Namespaces.pm
+1;    # End of Namespaces.pm
 
 __END__
 
