@@ -1,3 +1,6 @@
+# Perl::Critic RC file for Net::Google::Picasaweb
+# $Id$
+
 severity  = brutal
 only      = 1
 force     = 0
@@ -96,7 +99,7 @@ verbose   = 5
 [Perl::Critic::Policy::CodeLayout::RequireTidyCode]
 # set_themes = core cosmetic pbp
 # severity   = 1
-# perltidyrc = 
+perltidyrc = t/perltidyrc
 
 [Perl::Critic::Policy::CodeLayout::RequireTrailingCommas]
 # set_themes = core cosmetic pbp
