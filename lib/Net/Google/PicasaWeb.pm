@@ -18,7 +18,8 @@ package Net::Google::PicasaWeb;
 our $VERSION = '0.00_01';    # for MakeMaker and CPAN
 $VERSION = eval $VERSION;    ## no critic # for Perl (see perlmodstyle)
 
-use Net::Google::PicasaWeb::User();
+use Net::Google::PicasaWeb::User qw();
+use Net::Google::PicasaWeb::Namespaces qw();
 
 1;                           # End of PicasaWeb.pm
 __END__
